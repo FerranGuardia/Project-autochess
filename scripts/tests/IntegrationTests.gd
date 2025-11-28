@@ -34,7 +34,10 @@ func run_all_integration_tests():
 	test_bench_grid_bidirectional_flow()
 	test_unit_stats_persistence()
 	test_signal_integration()
-	# Agregar más tests aquí cuando implementes más sistemas
+	test_shop_to_bench_integration()
+	test_enemy_spawn_combat_integration()
+	test_grid_combat_integration()
+	test_complete_round_flow()
 
 # ========== Setup y Teardown ==========
 
@@ -303,26 +306,324 @@ func test_signal_integration():
 	
 	teardown_test_environment()
 
+# ========== Tests de Integración de Tienda ==========
+
+func test_shop_to_bench_integration():
+	"""Test: Comprar unidad y que aparezca en bench"""
+	print("\n📋 Test: Integración Shop → Bench")
+	
+	if not setup_test_environment():
+		tests_failed += 1
+		return
+	
+	# Obtener referencias del Board
+	var shop = board.shop
+	var game_manager = board.game_manager
+	
+	if not shop or not game_manager:
+		print("⚠️  ADVERTENCIA: Shop o GameManager no encontrados en Board")
+		print("   (Esto es normal si no están inicializados)")
+		teardown_test_environment()
+		return
+	
+	# Limpiar bench antes del test
+	cleanup_all_units()
+	
+	# Configurar oro suficiente
+	var initial_gold = game_manager.get_gold()
+	var offers = shop.get_offers()
+	if offers.is_empty():
+		print("⚠️  ADVERTENCIA: No hay ofertas en la tienda")
+		teardown_test_environment()
+		return
+	
+	var unit_type = offers[0]
+	var cost = shop.get_unit_cost(unit_type)
+	game_manager.gold = cost + 5  # Oro suficiente
+	
+	# Paso 1: Comprar unidad
+	var purchase_success = shop.purchase_unit(0)
+	
+	if not purchase_success:
+		print("❌ FALLÓ: No se pudo comprar unidad")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	# Paso 2: Verificar que la unidad está en el bench
+	var units_in_bench = bench.units.size()
+	if units_in_bench == 0:
+		print("❌ FALLÓ: Unidad no apareció en bench después de comprar")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	# Paso 3: Verificar que el oro se gastó
+	var final_gold = game_manager.get_gold()
+	var expected_gold = initial_gold + 5 - cost  # Oro inicial + extra - costo
+	
+	if final_gold != expected_gold:
+		print("❌ FALLÓ: Oro no se gastó correctamente (Esperado: ", expected_gold, ", Obtenido: ", final_gold, ")")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	# Paso 4: Verificar que la unidad puede moverse al grid
+	var unit = bench.get_unit_at(0)
+	if not unit:
+		print("❌ FALLÓ: No se encontró unidad en bench")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	var grid_pos = grid_ally.get_world_position(3, 2)
+	var move_success = board.handle_unit_drop(unit, grid_pos)
+	
+	if not move_success:
+		print("❌ FALLÓ: Unidad comprada no se pudo mover al grid")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	print("✅ PASÓ: Integración Shop → Bench → Grid funciona correctamente")
+	tests_passed += 1
+	
+	teardown_test_environment()
+	game_manager.gold = initial_gold
+
+# ========== Tests de Integración de Enemigos ==========
+
+func test_enemy_spawn_combat_integration():
+	"""Test: Spawnear enemigos y que aparezcan en combate"""
+	print("\n📋 Test: Integración EnemyAI → GridEnemy → Combat")
+	
+	if not setup_test_environment():
+		tests_failed += 1
+		return
+	
+	# Obtener referencias del Board
+	var enemy_ai = board.enemy_ai
+	var combat_system = board.combat_system
+	
+	if not enemy_ai or not combat_system:
+		print("⚠️  ADVERTENCIA: EnemyAI o CombatSystem no encontrados")
+		teardown_test_environment()
+		return
+	
+	# Limpiar enemigos antes del test
+	if grid_enemy:
+		grid_enemy.clear_all_enemies()
+	
+	# Paso 1: Spawnear enemigos para ronda 1
+	enemy_ai.spawn_enemies_for_round(1)
+	
+	var enemies_spawned = grid_enemy.get_all_enemies().size()
+	if enemies_spawned == 0:
+		print("❌ FALLÓ: No se spawnearon enemigos")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	# Paso 2: Verificar que los enemigos están en el grid
+	var enemy_at_pos = grid_enemy.get_enemy_at(3, 0)
+	if not enemy_at_pos:
+		print("❌ FALLÓ: Enemigo no está en la posición esperada")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	# Paso 3: Verificar que el sistema de combate puede recopilarlos
+	combat_system.collect_combat_units()
+	var enemies_in_combat = combat_system.enemy_units.size()
+	
+	if enemies_in_combat != enemies_spawned:
+		print("❌ FALLÓ: Enemigos no se recopilaron en combate (Esperado: ", enemies_spawned, ", Obtenido: ", enemies_in_combat, ")")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	print("✅ PASÓ: Integración EnemyAI → GridEnemy → Combat funciona correctamente")
+	tests_passed += 1
+	
+	teardown_test_environment()
+
+# ========== Tests de Integración de Combate ==========
+
+func test_grid_combat_integration():
+	"""Test: Unidades en grid pueden combatir"""
+	print("\n📋 Test: Integración Grid → Combat")
+	
+	if not setup_test_environment():
+		tests_failed += 1
+		return
+	
+	# Obtener referencias del Board
+	var combat_system = board.combat_system
+	var game_manager = board.game_manager
+	
+	if not combat_system or not game_manager:
+		print("⚠️  ADVERTENCIA: CombatSystem o GameManager no encontrados")
+		teardown_test_environment()
+		return
+	
+	# Limpiar antes del test
+	cleanup_all_units()
+	if grid_enemy:
+		grid_enemy.clear_all_enemies()
+	
+	# Paso 1: Colocar unidades aliadas en grid
+	var unit1 = Unit.new()
+	unit1.initialize(UnitData.UnitType.MAGO)
+	grid_ally.place_unit(unit1, 3, 2)
+	
+	var unit2 = Unit.new()
+	unit2.initialize(UnitData.UnitType.ELFO)
+	grid_ally.place_unit(unit2, 2, 2)
+	
+	# Paso 2: Colocar enemigos
+	var enemy1 = Unit.new()
+	enemy1.initialize_enemy(EnemyData.EnemyType.GOBLIN_BOW)
+	grid_enemy.place_enemy(enemy1, 3, 0)
+	
+	# Paso 3: Iniciar combate
+	combat_system.start_combat()
+	
+	if not combat_system.is_combat_active:
+		print("❌ FALLÓ: Combate no se inició")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	# Paso 4: Verificar que las unidades están en combate
+	var allies_in_combat = combat_system.ally_units.size()
+	var enemies_in_combat = combat_system.enemy_units.size()
+	
+	if allies_in_combat != 2 or enemies_in_combat != 1:
+		print("❌ FALLÓ: Unidades no se recopilaron correctamente (Aliados: ", allies_in_combat, ", Enemigos: ", enemies_in_combat, ")")
+		tests_failed += 1
+		combat_system.stop_combat()
+		teardown_test_environment()
+		return
+	
+	# Paso 5: Simular un ataque
+	var initial_health = enemy1.current_health
+	combat_system.attack_target(unit1, enemy1)
+	var final_health = enemy1.current_health
+	
+	if final_health >= initial_health:
+		print("❌ FALLÓ: Ataque no aplicó daño")
+		tests_failed += 1
+		combat_system.stop_combat()
+		teardown_test_environment()
+		return
+	
+	print("✅ PASÓ: Integración Grid → Combat funciona correctamente")
+	tests_passed += 1
+	
+	combat_system.stop_combat()
+	teardown_test_environment()
+
+# ========== Tests de Flujo Completo ==========
+
+func test_complete_round_flow():
+	"""Test: Flujo completo de una ronda (preparación → combate → resurrección)"""
+	print("\n📋 Test: Flujo Completo de Ronda")
+	
+	if not setup_test_environment():
+		tests_failed += 1
+		return
+	
+	# Obtener referencias del Board
+	var game_manager = board.game_manager
+	var enemy_ai = board.enemy_ai
+	var combat_system = board.combat_system
+	
+	if not game_manager or not enemy_ai or not combat_system:
+		print("⚠️  ADVERTENCIA: Sistemas no encontrados")
+		teardown_test_environment()
+		return
+	
+	# Limpiar antes del test
+	cleanup_all_units()
+	if grid_enemy:
+		grid_enemy.clear_all_enemies()
+	
+	# Paso 1: Fase de preparación - Colocar unidades
+	var unit1 = Unit.new()
+	unit1.initialize(UnitData.UnitType.MAGO)
+	grid_ally.place_unit(unit1, 3, 2)
+	
+	var unit2 = Unit.new()
+	unit2.initialize(UnitData.UnitType.ELFO)
+	grid_ally.place_unit(unit2, 2, 2)
+	
+	# Paso 2: Guardar posiciones iniciales
+	grid_ally.save_initial_positions()
+	var positions_saved = grid_ally.initial_positions.size()
+	
+	if positions_saved != 2:
+		print("❌ FALLÓ: Posiciones no se guardaron (Esperado: 2, Obtenido: ", positions_saved, ")")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	# Paso 3: Iniciar combate - Spawnear enemigos
+	enemy_ai.spawn_enemies_for_round(1)
+	var enemies_spawned = grid_enemy.get_all_enemies().size()
+	
+	if enemies_spawned == 0:
+		print("❌ FALLÓ: No se spawnearon enemigos")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	# Paso 4: Iniciar sistema de combate
+	combat_system.start_combat()
+	
+	if not combat_system.is_combat_active:
+		print("❌ FALLÓ: Combate no se inició")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	# Paso 5: Simular combate - Matar una unidad aliada
+	unit1.take_damage(1000)
+	var unit1_died = not unit1.is_alive()
+	
+	if not unit1_died:
+		print("❌ FALLÓ: Unidad no murió en combate")
+		tests_failed += 1
+		combat_system.stop_combat()
+		teardown_test_environment()
+		return
+	
+	# Paso 6: Detener combate y resucitar
+	combat_system.stop_combat()
+	grid_ally.resurrect_all_units()
+	
+	var unit1_resurrected = unit1.is_alive()
+	var unit1_in_position = unit1.get_grid_position() == Vector2i(3, 2)
+	
+	if not unit1_resurrected:
+		print("❌ FALLÓ: Unidad no resucitó")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	if not unit1_in_position:
+		print("❌ FALLÓ: Unidad no restauró su posición")
+		tests_failed += 1
+		teardown_test_environment()
+		return
+	
+	print("✅ PASÓ: Flujo completo de ronda funciona correctamente")
+	tests_passed += 1
+	
+	teardown_test_environment()
+
 # ========== Tests Futuros (Plantillas) ==========
-
-# Descomenta y completa estos cuando implementes los sistemas correspondientes
-
-# func test_shop_to_bench_integration():
-#     """Test: Comprar unidad y que aparezca en bench"""
-#     # TODO: Implementar cuando tengas sistema de shop
-#     pass
-
-# func test_grid_combat_integration():
-#     """Test: Unidades en grid pueden combatir"""
-#     # TODO: Implementar cuando tengas sistema de combate completo
-#     pass
 
 # func test_unit_combination_integration():
 #     """Test: Combinar 3 unidades funciona"""
 #     # TODO: Implementar cuando tengas sistema de combinación
-#     pass
-
-# func test_complete_round_flow():
-#     """Test: Flujo completo de una ronda"""
-#     # TODO: Implementar cuando tengas todos los sistemas
 #     pass

@@ -330,8 +330,8 @@ func _on_combat_started_system():
 
 func _on_combat_ended_system(_victory: bool):
 	"""Se llama cuando termina el combate - detener sistema de combate y revivir unidades"""
-	if combat_system:
-		combat_system.stop_combat()
+	# Nota: stop_combat() ya se llama en end_combat(), no es necesario llamarlo aquí
+	# El CombatSystem ya detuvo el combate cuando llamó a end_combat()
 	
 	# Revivir todas las unidades aliadas y restaurar posiciones
 	if grid_ally:

@@ -267,33 +267,69 @@ func resurrect_all_units():
 	"""Revive todas las unidades aliadas y las restaura a sus posiciones iniciales"""
 	var resurrected_count = 0
 	
-	# Revivir todas las unidades que estaban en el grid inicialmente
+	# Primero, remover todas las unidades del diccionario para evitar conflictos
+	var units_to_restore = []
 	for unit in initial_positions.keys():
 		if not is_instance_valid(unit):
 			continue
 		
-		# Revivir la unidad si está muerta
-		if not unit.is_alive():
-			# Restaurar salud completa
-			unit.current_health = unit.max_health
-			unit.update_health_bar()
+		# Remover de la posición actual del diccionario
+		var current_pos = unit.get_grid_position()
+		if current_pos.x >= 0 and current_pos.y >= 0:
+			# Remover del diccionario si está registrada
+			if units.has(current_pos) and units[current_pos] == unit:
+				units.erase(current_pos)
+		
+		# Guardar información para restaurar
+		var initial_pos = initial_positions[unit]
+		units_to_restore.append({"unit": unit, "pos": initial_pos})
+	
+	# Ahora restaurar todas las unidades
+	var healed_count = 0
+	for data in units_to_restore:
+		var unit = data["unit"]
+		var initial_pos = data["pos"]
+		
+		if not is_instance_valid(unit):
+			continue
+		
+		# Curar completamente todas las unidades (vivas o muertas)
+		var was_dead = not unit.is_alive()
+		var had_damage = unit.current_health < unit.max_health
+		
+		# Restaurar salud completa
+		unit.current_health = unit.max_health
+		unit.update_health_bar()
+		
+		# Contar unidades que necesitaban curación
+		if was_dead:
 			resurrected_count += 1
 			print("Unidad ", unit.unit_name, " revivida")
+		elif had_damage:
+			healed_count += 1
+			print("Unidad ", unit.unit_name, " curada completamente")
 		
 		# Restaurar posición inicial
-		var initial_pos = initial_positions[unit]
 		if initial_pos.x >= 0 and initial_pos.y >= 0:
-			# Remover de posición actual si está en otra
-			var current_pos = unit.get_grid_position()
-			if current_pos != initial_pos:
-				remove_unit(unit)
-				place_unit(unit, initial_pos.x, initial_pos.y)
-			else:
-				# Solo actualizar posición visual si ya está en la posición correcta
-				var world_pos = get_world_position(initial_pos.x, initial_pos.y)
-				unit.position = to_local(world_pos)
+			# Establecer posición de la unidad
+			unit.set_grid_position(initial_pos.x, initial_pos.y)
+			
+			# Calcular posición mundial
+			var world_pos = get_world_position(initial_pos.x, initial_pos.y)
+			unit.position = to_local(world_pos)
+			
+			# Asegurar que la unidad esté en el contenedor
+			if unit.get_parent() != units_container:
+				if unit.get_parent():
+					unit.get_parent().remove_child(unit)
+				units_container.add_child(unit)
+				connect_unit_signals(unit)
+			
+			# Registrar en el diccionario
+			var grid_pos = Vector2i(initial_pos.x, initial_pos.y)
+			units[grid_pos] = unit
 	
-	print("Unidades revividas: ", resurrected_count)
+	print("Unidades revividas: ", resurrected_count, ", Unidades curadas: ", healed_count)
 	
 	# Limpiar posiciones iniciales después de resucitar
 	initial_positions.clear()

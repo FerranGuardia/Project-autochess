@@ -24,6 +24,7 @@ func _ready():
 	run_all_gold_tests()
 	run_all_shop_tests()
 	run_all_purchase_tests()
+	run_all_shop_ui_tests()
 	
 	# Limpiar después de los tests
 	cleanup_test_environment()
@@ -518,5 +519,88 @@ func test_purchase_all_units():
 		tests_failed += 1
 	
 	cleanup_bench()
+	game_manager.reset_game()
+
+# ========== Tests del Sistema de UI de Tienda ==========
+
+func run_all_shop_ui_tests():
+	"""Ejecuta todos los tests del sistema de UI de tienda"""
+	print("\n🖥️ TESTS DEL SISTEMA DE UI DE TIENDA\n")
+	
+	# Nota: Estos tests requieren que ShopUI esté en el árbol de escena
+	# Por ahora, solo verificamos la lógica básica de actualización
+	
+	test_shop_ui_gold_update()
+	test_shop_ui_offers_update()
+	test_shop_ui_button_enable_disable()
+
+func test_shop_ui_gold_update():
+	"""Test: Actualización de display de oro funciona"""
+	print("📋 Test: Actualización de display de oro")
+	
+	var initial_gold = game_manager.get_gold()
+	
+	# Agregar oro
+	game_manager.add_gold(5)
+	var new_gold = game_manager.get_gold()
+	
+	if new_gold == initial_gold + 5:
+		print("  ✅ PASÓ: Oro se actualiza correctamente (", initial_gold, " -> ", new_gold, ")")
+		tests_passed += 1
+	else:
+		print("  ❌ FALLÓ: Oro no se actualizó correctamente")
+		tests_failed += 1
+	
+	# Restaurar
+	game_manager.gold = initial_gold
+
+func test_shop_ui_offers_update():
+	"""Test: Actualización de ofertas funciona"""
+	print("📋 Test: Actualización de ofertas")
+	
+	var initial_offers = shop.get_offers()
+	var initial_count = initial_offers.size()
+	
+	# Refrescar tienda
+	shop.refresh_shop()
+	var new_offers = shop.get_offers()
+	var new_count = new_offers.size()
+	
+	if new_count == 5:  # Debe tener 5 ofertas
+		print("  ✅ PASÓ: Ofertas se actualizan correctamente (", new_count, " ofertas)")
+		tests_passed += 1
+	else:
+		print("  ❌ FALLÓ: Ofertas no se actualizaron correctamente (Esperado: 5, Obtenido: ", new_count, ")")
+		tests_failed += 1
+
+func test_shop_ui_button_enable_disable():
+	"""Test: Botones se habilitan/deshabilitan según oro"""
+	print("📋 Test: Habilitación/deshabilitación de botones")
+	
+	# Obtener ofertas
+	var offers = shop.get_offers()
+	if offers.is_empty():
+		print("  ⚠️  ADVERTENCIA: No hay ofertas para probar")
+		return
+	
+	var unit_type = offers[0]
+	var cost = shop.get_unit_cost(unit_type)
+	
+	# Test 1: Con suficiente oro, debería poder comprar
+	game_manager.gold = cost + 10  # Oro suficiente
+	var can_buy_with_gold = game_manager.has_enough_gold(cost)
+	
+	# Test 2: Sin suficiente oro, no debería poder comprar
+	game_manager.gold = cost - 1  # Oro insuficiente
+	var cannot_buy_without_gold = not game_manager.has_enough_gold(cost)
+	
+	if can_buy_with_gold and cannot_buy_without_gold:
+		print("  ✅ PASÓ: Lógica de habilitación de botones correcta")
+		tests_passed += 1
+	else:
+		print("  ❌ FALLÓ: Lógica de habilitación de botones incorrecta")
+		tests_failed += 1
+	
+	# Restaurar
 	game_manager.reset_game()
 

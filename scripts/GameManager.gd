@@ -155,6 +155,11 @@ func start_combat():
 	if current_phase == Phase.COMBAT:
 		return
 	
+	# Verificar si el juego ya terminó (victoria)
+	if current_round > 5:
+		print("Juego completado. No se puede iniciar más combate.")
+		return
+	
 	# Detener el temporizador de preparación si está corriendo
 	if preparation_timer and preparation_timer.time_left > 0:
 		preparation_timer.stop()
@@ -181,7 +186,10 @@ func end_combat(victory: bool):
 		# Verificar si se completó la ronda 5 (victoria del juego)
 		if current_round >= 5:
 			print("¡FELICIDADES! Has completado todas las rondas. ¡VICTORIA!")
-			victory.emit()
+			# Detener temporizador de preparación para evitar que continúe
+			if preparation_timer:
+				preparation_timer.stop()
+			self.victory.emit()
 			return
 		
 		# Iniciar nueva ronda (incrementa current_round) y fase de preparación
@@ -224,6 +232,11 @@ func setup_preparation_timer():
 
 func start_preparation_phase():
 	"""Inicia la fase de preparación con temporizador de 30 segundos"""
+	# Verificar si el juego ya terminó (victoria)
+	if current_round > 5:
+		print("Juego completado. No se puede iniciar más preparación.")
+		return
+	
 	if current_phase != Phase.PREPARATION:
 		current_phase = Phase.PREPARATION
 		phase_changed.emit(current_phase)
@@ -237,6 +250,11 @@ func start_preparation_phase():
 
 func _on_preparation_timer_timeout():
 	"""Se llama cuando el temporizador de preparación termina"""
+	# Verificar si el juego ya terminó (victoria)
+	if current_round > 5:
+		print("Juego completado. No se inicia más combate.")
+		return
+	
 	print("Tiempo de preparación terminado. Iniciando combate...")
 	start_combat()
 

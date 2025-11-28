@@ -741,7 +741,7 @@ func count_enemy_types() -> Dictionary:
 func get_enemy_type_from_unit(unit: Unit) -> EnemyData.EnemyType:
 	"""Obtiene el tipo de enemigo desde una unidad"""
 	# Unit tiene una propiedad enemy_type que almacena el tipo directamente
-	if unit.is_enemy and unit.has("enemy_type"):
+	if unit and unit.is_enemy:
 		return unit.enemy_type
 	
 	# Fallback: retornar un tipo por defecto si no se puede determinar

@@ -60,7 +60,25 @@ func _ready():
 	if not shop or not game_manager:
 		setup_ui()
 	else:
+		# Si las referencias ya están, conectar señales antes de crear UI
+		connect_signals()
 		create_ui()
+
+func connect_signals():
+	"""Conecta todas las señales necesarias"""
+	if game_manager:
+		if not game_manager.gold_changed.is_connected(_on_gold_changed):
+			game_manager.gold_changed.connect(_on_gold_changed)
+			print("ShopUI: Señal gold_changed conectada")
+		if not game_manager.round_changed.is_connected(_on_round_changed):
+			game_manager.round_changed.connect(_on_round_changed)
+		if not game_manager.lives_changed.is_connected(_on_lives_changed):
+			game_manager.lives_changed.connect(_on_lives_changed)
+		if not game_manager.phase_changed.is_connected(_on_phase_changed):
+			game_manager.phase_changed.connect(_on_phase_changed)
+	if shop:
+		if not shop.unit_purchased.is_connected(_on_unit_purchased):
+			shop.unit_purchased.connect(_on_unit_purchased)
 
 func setup_ui():
 	"""Configura la UI de la tienda"""
@@ -81,18 +99,7 @@ func setup_ui():
 			game_manager = board.game_manager
 		
 		# Conectar señales
-		if game_manager:
-			if not game_manager.gold_changed.is_connected(_on_gold_changed):
-				game_manager.gold_changed.connect(_on_gold_changed)
-			if not game_manager.round_changed.is_connected(_on_round_changed):
-				game_manager.round_changed.connect(_on_round_changed)
-			if not game_manager.lives_changed.is_connected(_on_lives_changed):
-				game_manager.lives_changed.connect(_on_lives_changed)
-			if not game_manager.phase_changed.is_connected(_on_phase_changed):
-				game_manager.phase_changed.connect(_on_phase_changed)
-		if shop:
-			if not shop.unit_purchased.is_connected(_on_unit_purchased):
-				shop.unit_purchased.connect(_on_unit_purchased)
+		connect_signals()
 	
 	# Crear UI
 	create_ui()
@@ -360,11 +367,11 @@ func create_control_panel():
 	control_panel.add_child(start_combat_button)
 	
 	# Actualizar UI inicial
-	update_offers_display()
 	update_gold_display()
 	update_round_display()
 	update_lives_display()
 	update_phase_display()
+	update_offers_display()  # Actualizar ofertas al final para que tenga el oro actualizado
 	
 	# VALIDAR que todos los elementos estén dentro del panel
 	ensure_all_elements_inside_panel()
@@ -377,7 +384,11 @@ func update_gold_display():
 func update_offers_display():
 	"""Actualiza el display de ofertas"""
 	if not offers_container or not shop:
+		print("ShopUI: No se puede actualizar ofertas - offers_container o shop es null")
 		return
+	
+	if not game_manager:
+		print("ShopUI: Warning - game_manager es null al actualizar ofertas")
 	
 	# Limpiar ofertas anteriores
 	for child in offers_container.get_children():
@@ -415,10 +426,18 @@ func update_offers_display():
 		buy_button.text = "Comprar"
 		buy_button.custom_minimum_size = Vector2(100, OFFER_ROW_HEIGHT)
 		
-		# Verificar si hay suficiente oro
-		if game_manager and not game_manager.has_enough_gold(cost):
+		# Verificar si hay suficiente oro y habilitar/deshabilitar botón
+		if game_manager:
+			if game_manager.has_enough_gold(cost):
+				buy_button.disabled = false
+				buy_button.modulate = Color(1.0, 1.0, 1.0)  # Color normal si hay suficiente oro
+			else:
+				buy_button.disabled = true
+				buy_button.modulate = Color(0.5, 0.5, 0.5)  # Gris si no hay suficiente oro
+		else:
+			# Si no hay game_manager, deshabilitar por seguridad
 			buy_button.disabled = true
-			buy_button.modulate = Color(0.5, 0.5, 0.5)  # Gris si no hay suficiente oro
+			buy_button.modulate = Color(0.5, 0.5, 0.5)
 		
 		# Conectar señal de compra
 		var offer_index = i  # Capturar índice para la lambda
@@ -457,6 +476,7 @@ func _on_refresh_pressed():
 
 func _on_gold_changed(_new_amount: int):
 	"""Se llama cuando cambia el oro"""
+	print("ShopUI: Oro cambiado a ", _new_amount)
 	update_gold_display()
 	# Actualizar botones de compra (habilitar/deshabilitar según oro)
 	update_offers_display()

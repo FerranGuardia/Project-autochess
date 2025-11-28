@@ -99,14 +99,14 @@ func collect_combat_units():
 	if grid_ally:
 		var all_ally_units = grid_ally.get_all_units()
 		for unit in all_ally_units:
-			if unit and unit.is_alive() and unit.get_grid_position().y >= 0:
+			if unit is Unit and unit.is_alive() and unit.get_grid_position().y >= 0:
 				ally_units.append(unit)
 	
 	# Obtener unidades enemigas del grid
 	if grid_enemy:
 		var all_enemy_units = grid_enemy.get_all_enemies()
 		for unit in all_enemy_units:
-			if unit and unit.is_alive():
+			if unit is Unit and unit.is_alive():
 				enemy_units.append(unit)
 
 func _on_combat_tick():
@@ -135,7 +135,7 @@ func update_combat():
 			continue
 		update_unit_combat(unit, ally_units)
 
-func update_unit_combat(unit: Unit, targets: Array):
+func update_unit_combat(unit: Unit, targets: Array[Unit]):
 	"""Actualiza el combate de una unidad específica"""
 	if targets.is_empty():
 		return
@@ -158,7 +158,7 @@ func update_unit_combat(unit: Unit, targets: Array):
 		# Si no está en rango, moverse hacia el objetivo
 		move_towards_target(unit, target)
 
-func find_nearest_target(unit: Unit, targets: Array) -> Unit:
+func find_nearest_target(unit: Unit, targets: Array[Unit]) -> Unit:
 	"""Encuentra el objetivo más cercano"""
 	if targets.is_empty():
 		return null
@@ -179,12 +179,21 @@ func find_nearest_target(unit: Unit, targets: Array) -> Unit:
 
 func get_distance_to_target(unit: Unit, target: Unit) -> float:
 	"""Calcula la distancia entre dos unidades"""
+	if not unit or not target:
+		return INF
+	
+	if not is_instance_valid(unit) or not is_instance_valid(target):
+		return INF
+	
 	var unit_pos = unit.global_position
 	var target_pos = target.global_position
 	return unit_pos.distance_to(target_pos)
 
 func get_unit_attack_range(unit: Unit) -> float:
 	"""Obtiene el rango de ataque de una unidad en píxeles"""
+	if not unit:
+		return 0.0
+	
 	var range_in_cells: int
 	
 	if unit.is_enemy:
@@ -198,6 +207,9 @@ func get_unit_attack_range(unit: Unit) -> float:
 func move_towards_target(unit: Unit, target: Unit):
 	"""Mueve la unidad hacia el objetivo"""
 	if not unit or not target:
+		return
+	
+	if not is_instance_valid(unit) or not is_instance_valid(target):
 		return
 	
 	var unit_pos = unit.global_position
@@ -215,7 +227,7 @@ func move_towards_target(unit: Unit, target: Unit):
 
 func update_unit_grid_position(unit: Unit):
 	"""Actualiza la posición del grid de una unidad basándose en su posición mundial"""
-	if not unit:
+	if not unit or not is_instance_valid(unit):
 		return
 	
 	# Solo actualizar si la unidad está en el grid (no en el banquillo)
@@ -230,15 +242,21 @@ func update_unit_grid_position(unit: Unit):
 	else:
 		grid = grid_enemy
 	
-	if not grid:
+	if not grid or not is_instance_valid(grid):
 		return
 	
 	# Convertir posición mundial a posición del grid
 	var grid_pos: Vector2i
 	if unit.is_enemy:
-		grid_pos = grid_enemy.get_grid_position(unit.global_position)
+		if grid_enemy:
+			grid_pos = grid_enemy.get_grid_position(unit.global_position)
+		else:
+			return
 	else:
-		grid_pos = grid_ally.get_grid_position(unit.global_position)
+		if grid_ally:
+			grid_pos = grid_ally.get_grid_position(unit.global_position)
+		else:
+			return
 	
 	# Solo actualizar si la posición cambió significativamente (más de media celda)
 	if grid_pos.x >= 0 and grid_pos.y >= 0:
@@ -289,10 +307,13 @@ func attack_target(unit: Unit, target: Unit):
 	# Establecer cooldown
 	attack_cooldowns[unit_id] = ATTACK_COOLDOWN
 	
-	print(unit.unit_name if not unit.is_enemy else unit.unit_name, " ataca a ", target.unit_name, " por ", final_damage, " daño")
+	print(unit.unit_name, " ataca a ", target.unit_name, " por ", final_damage, " daño")
 
 func get_unit_attack(unit: Unit) -> int:
 	"""Obtiene el ataque de una unidad"""
+	if not unit:
+		return 0
+	
 	if unit.is_enemy:
 		return EnemyData.get_enemy_attack(unit.enemy_type)
 	else:
@@ -300,6 +321,9 @@ func get_unit_attack(unit: Unit) -> int:
 
 func get_unit_defense(unit: Unit) -> int:
 	"""Obtiene la defensa de una unidad"""
+	if not unit:
+		return 0
+	
 	if unit.is_enemy:
 		return EnemyData.get_enemy_defense(unit.enemy_type)
 	else:
@@ -308,8 +332,17 @@ func get_unit_defense(unit: Unit) -> int:
 func check_combat_end() -> bool:
 	"""Verifica si el combate ha terminado"""
 	# Remover unidades muertas
-	ally_units = ally_units.filter(func(u): return is_instance_valid(u) and u.is_alive())
-	enemy_units = enemy_units.filter(func(u): return is_instance_valid(u) and u.is_alive())
+	var valid_allies: Array[Unit] = []
+	for u in ally_units:
+		if is_instance_valid(u) and u.is_alive():
+			valid_allies.append(u)
+	ally_units = valid_allies
+	
+	var valid_enemies: Array[Unit] = []
+	for u in enemy_units:
+		if is_instance_valid(u) and u.is_alive():
+			valid_enemies.append(u)
+	enemy_units = valid_enemies
 	
 	# Verificar condiciones de fin
 	var allies_alive = ally_units.size() > 0
