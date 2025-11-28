@@ -10,9 +10,11 @@ const ROWS = 5
 
 # Referencia al contenedor de celdas (se crean dinámicamente)
 var cells_container: Node2D
-var background: Node2D  # Puede ser Sprite2D o Polygon2D
+var tiles_container: Node2D  # Contenedor para los tiles individuales
+var background: Node2D  # Fallback Polygon2D si no hay tiles
 
 var cells: Array[Polygon2D] = []
+var tiles: Array[Sprite2D] = []  # Array de sprites de tiles
 
 # Sistema de unidades enemigas
 var units: Dictionary = {}  # Key: Vector2i(grid_position), Value: Unit
@@ -33,65 +35,20 @@ func setup_units_container():
 		add_child(units_container)
 
 func create_grid():
-	"""Crea el grid visual de 7×5 celdas con arena"""
-	# Crear fondo de arena con sprite (o fallback a Polygon2D)
-	if not background:
-		var arena_path = "res://assets/sprites/arena/arena_enemy.png"
-		var arena_texture = null
-		
-		# Intentar cargar la textura
-		if ResourceLoader.exists(arena_path):
-			var resource = ResourceLoader.load(arena_path)
-			if resource != null and resource is Texture2D:
-				arena_texture = resource
-		
-		if arena_texture != null:
-			# Usar Sprite2D con la arena generada
-			var sprite = Sprite2D.new()
-			sprite.name = "Background"
-			sprite.texture = arena_texture
-			sprite.centered = false  # No centrado para alinear con celdas
-			
-			# Calcular dimensiones del grid
-			var grid_width = float(COLUMNS * CELL_SIZE)  # 700px
-			var grid_height = float(ROWS * CELL_SIZE)    # 500px
-			var tex_width = arena_texture.get_width()
-			var tex_height = arena_texture.get_height()
-			
-			# Escalar sprite para que coincida exactamente con el tamaño del grid
-			if tex_width > 0 and tex_height > 0:
-				sprite.scale = Vector2(
-					grid_width / tex_width,
-					grid_height / tex_height
-				)
-			
-			# Posicionar sprite para que coincida con las celdas
-			# Las celdas se calculan desde el centro, así que el sprite debe estar
-			# posicionado desde su esquina superior izquierda
-			var offset_x = -grid_width / 2.0
-			var offset_y = -grid_height / 2.0
-			sprite.position = Vector2(offset_x, offset_y)
-			
-			sprite.z_index = -1  # Detrás de las unidades
-			background = sprite
-			print("✓ Arena enemiga cargada desde sprite (posicionada correctamente)")
-		else:
-			# Fallback: usar Polygon2D temporal
-			var polygon = Polygon2D.new()
-			polygon.name = "Background"
-			polygon.color = Color(1.0, 0.2, 0.2, 0.25)  # Rojo semitransparente
-			var width = float(COLUMNS * CELL_SIZE)
-			var height = float(ROWS * CELL_SIZE)
-			polygon.polygon = PackedVector2Array([
-				Vector2(-width / 2.0, -height / 2.0),
-				Vector2(width / 2.0, -height / 2.0),
-				Vector2(width / 2.0, height / 2.0),
-				Vector2(-width / 2.0, height / 2.0)
-			])
-			background = polygon
-			print("⚠ Arena enemiga no encontrada, usando fallback. Ejecuta generate_arena.gd para generar las arenas.")
-		
-		add_child(background)
+	"""Crea el grid visual de 7×5 celdas con tiles individuales"""
+	# Crear contenedor para tiles si no existe
+	if not tiles_container:
+		tiles_container = Node2D.new()
+		tiles_container.name = "TilesContainer"
+		add_child(tiles_container)
+		tiles_container.z_index = -1  # Detrás de las unidades
+	
+	# Cargar y colocar tiles individuales
+	load_and_place_tiles()
+	
+	# Si no hay tiles, usar fallback
+	if tiles.is_empty():
+		create_fallback_background()
 	
 	# Crear contenedor de celdas si no existe
 	if not cells_container:
@@ -103,6 +60,87 @@ func create_grid():
 	for row in range(ROWS):
 		for col in range(COLUMNS):
 			create_cell(col, row)
+
+func load_and_place_tiles():
+	"""Carga tiles individuales y los coloca uno a uno en cada celda"""
+	tiles.clear()
+	
+	# Limpiar tiles anteriores
+	for child in tiles_container.get_children():
+		child.queue_free()
+	
+	var tiles_loaded = 0
+	
+	# Colocar tiles en cada celda del grid (7×5 = 35 tiles)
+	for row in range(ROWS):
+		for col in range(COLUMNS):
+			var tile_sprite = load_tile_for_cell(col, row)
+			if tile_sprite:
+				# Calcular posición de la celda
+				var cell_pos = get_world_position(col, row)
+				tile_sprite.position = to_local(cell_pos)
+				tile_sprite.z_index = -1
+				
+				tiles_container.add_child(tile_sprite)
+				tiles.append(tile_sprite)
+				tiles_loaded += 1
+	
+	if tiles_loaded > 0:
+		print("✓ Tiles cargados para arena enemiga: ", tiles_loaded, " de ", COLUMNS * ROWS)
+	else:
+		print("⚠ No se encontraron tiles para arena enemiga. Usando fallback.")
+
+func load_tile_for_cell(col: int, row: int) -> Sprite2D:
+	"""Intenta cargar un tile específico para una celda"""
+	# Calcular índice del tile (0-34 para grid 7×5)
+	var tile_index = row * COLUMNS + col
+	
+	# Intentar cargar tile específico primero
+	var specific_tile_path = "res://assets/sprites/arena/tiles/enemy/tile_enemy_%02d.png" % tile_index
+	if ResourceLoader.exists(specific_tile_path):
+		var texture = load(specific_tile_path) as Texture2D
+		if texture:
+			var sprite = Sprite2D.new()
+			sprite.texture = texture
+			sprite.centered = false
+			sprite.name = "Tile_%d_%d" % [col, row]
+			return sprite
+	
+	# Si no existe tile específico, intentar cargar tiles genéricos en orden
+	# Esto permite crear tiles gradualmente
+	for i in range(10):  # Intentar hasta 10 tiles genéricos
+		var generic_tile_path = "res://assets/sprites/arena/tiles/enemy/tile_enemy_%02d.png" % i
+		if ResourceLoader.exists(generic_tile_path):
+			var texture = load(generic_tile_path) as Texture2D
+			if texture:
+				var sprite = Sprite2D.new()
+				sprite.texture = texture
+				sprite.centered = false
+				sprite.name = "Tile_%d_%d" % [col, row]
+				return sprite
+	
+	# Si no hay tiles, retornar null (se usará fallback)
+	return null
+
+func create_fallback_background():
+	"""Crea un fondo temporal si no hay tiles disponibles"""
+	if background:
+		return
+	
+	var polygon = Polygon2D.new()
+	polygon.name = "Background"
+	polygon.color = Color(1.0, 0.2, 0.2, 0.25)  # Rojo semitransparente
+	var width = float(COLUMNS * CELL_SIZE)
+	var height = float(ROWS * CELL_SIZE)
+	polygon.polygon = PackedVector2Array([
+		Vector2(-width / 2.0, -height / 2.0),
+		Vector2(width / 2.0, -height / 2.0),
+		Vector2(width / 2.0, height / 2.0),
+		Vector2(-width / 2.0, height / 2.0)
+	])
+	background = polygon
+	add_child(background)
+	print("⚠ Usando fondo temporal. Crea tiles en assets/sprites/arena/tiles/enemy/")
 
 func create_cell(col: int, row: int):
 	"""Crea una celda individual en la posición (col, row)"""
