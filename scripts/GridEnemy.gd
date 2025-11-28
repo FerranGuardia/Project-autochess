@@ -50,23 +50,31 @@ func create_grid():
 			var sprite = Sprite2D.new()
 			sprite.name = "Background"
 			sprite.texture = arena_texture
-			sprite.centered = true
+			sprite.centered = false  # No centrado para alinear con celdas
 			
-			# Escalar si es necesario (debe ser 700×500px)
+			# Calcular dimensiones del grid
 			var grid_width = float(COLUMNS * CELL_SIZE)  # 700px
 			var grid_height = float(ROWS * CELL_SIZE)    # 500px
 			var tex_width = arena_texture.get_width()
 			var tex_height = arena_texture.get_height()
 			
+			# Escalar sprite para que coincida exactamente con el tamaño del grid
 			if tex_width > 0 and tex_height > 0:
 				sprite.scale = Vector2(
 					grid_width / tex_width,
 					grid_height / tex_height
 				)
 			
+			# Posicionar sprite para que coincida con las celdas
+			# Las celdas se calculan desde el centro, así que el sprite debe estar
+			# posicionado desde su esquina superior izquierda
+			var offset_x = -grid_width / 2.0
+			var offset_y = -grid_height / 2.0
+			sprite.position = Vector2(offset_x, offset_y)
+			
 			sprite.z_index = -1  # Detrás de las unidades
 			background = sprite
-			print("✓ Arena enemiga cargada desde sprite")
+			print("✓ Arena enemiga cargada desde sprite (posicionada correctamente)")
 		else:
 			# Fallback: usar Polygon2D temporal
 			var polygon = Polygon2D.new()
