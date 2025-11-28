@@ -1,0 +1,85 @@
+═══════════════════════════════════════════════════════════════════════════════════════
+                    TABLA DE NOMBRES DE TILES - TABLERO ALIADO
+═══════════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ TILES DEL GRID DE COMBATE (7×5 = 35 tiles)                                         │
+│ Carpeta: assets/sprites/arena/tiles/ally/                                          │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+Fila 0 (Arriba):
+  Col 0 → tile_ally_00.png    Col 1 → tile_ally_01.png    Col 2 → tile_ally_02.png
+  Col 3 → tile_ally_03.png    Col 4 → tile_ally_04.png    Col 5 → tile_ally_05.png
+  Col 6 → tile_ally_06.png
+
+Fila 1:
+  Col 0 → tile_ally_07.png    Col 1 → tile_ally_08.png    Col 2 → tile_ally_09.png
+  Col 3 → tile_ally_10.png    Col 4 → tile_ally_11.png    Col 5 → tile_ally_12.png
+  Col 6 → tile_ally_13.png
+
+Fila 2:
+  Col 0 → tile_ally_14.png    Col 1 → tile_ally_15.png    Col 2 → tile_ally_16.png
+  Col 3 → tile_ally_17.png    Col 4 → tile_ally_18.png    Col 5 → tile_ally_19.png
+  Col 6 → tile_ally_20.png
+
+Fila 3:
+  Col 0 → tile_ally_21.png    Col 1 → tile_ally_22.png    Col 2 → tile_ally_23.png
+  Col 3 → tile_ally_24.png    Col 4 → tile_ally_25.png    Col 5 → tile_ally_26.png
+  Col 6 → tile_ally_27.png
+
+Fila 4 (Abajo):
+  Col 0 → tile_ally_28.png    Col 1 → tile_ally_29.png    Col 2 → tile_ally_30.png
+  Col 3 → tile_ally_31.png    Col 4 → tile_ally_32.png    Col 5 → tile_ally_33.png
+  Col 6 → tile_ally_34.png
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ TILES DECORATIVOS (32 tiles)                                                       │
+│ Carpeta: assets/sprites/arena/decorative/ally/                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+ARRIBA (7 tiles):
+  decorative_ally_top_00.png    decorative_ally_top_01.png    decorative_ally_top_02.png
+  decorative_ally_top_03.png    decorative_ally_top_04.png    decorative_ally_top_05.png
+  decorative_ally_top_06.png
+
+ABAJO (7 tiles):
+  decorative_ally_bottom_00.png    decorative_ally_bottom_01.png    decorative_ally_bottom_02.png
+  decorative_ally_bottom_03.png    decorative_ally_bottom_04.png    decorative_ally_bottom_05.png
+  decorative_ally_bottom_06.png
+
+IZQUIERDA (7 tiles):
+  decorative_ally_left_top_00.png      (arriba del lado izquierdo)
+  decorative_ally_left_00.png         (fila 0 del grid)
+  decorative_ally_left_01.png          (fila 1 del grid)
+  decorative_ally_left_02.png          (fila 2 del grid)
+  decorative_ally_left_03.png          (fila 3 del grid)
+  decorative_ally_left_04.png          (fila 4 del grid)
+  decorative_ally_left_bottom_00.png   (abajo del lado izquierdo)
+
+DERECHA (7 tiles):
+  decorative_ally_right_top_00.png      (arriba del lado derecho)
+  decorative_ally_right_00.png         (fila 0 del grid)
+  decorative_ally_right_01.png         (fila 1 del grid)
+  decorative_ally_right_02.png         (fila 2 del grid)
+  decorative_ally_right_03.png         (fila 3 del grid)
+  decorative_ally_right_04.png         (fila 4 del grid)
+  decorative_ally_right_bottom_00.png   (abajo del lado derecho)
+
+ESQUINAS (4 tiles):
+  decorative_ally_top_left_00.png      (esquina superior izquierda)
+  decorative_ally_top_right_00.png     (esquina superior derecha)
+  decorative_ally_bottom_left_00.png   (esquina inferior izquierda)
+  decorative_ally_bottom_right_00.png  (esquina inferior derecha)
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+NOTAS:
+- Todos los tiles son de 100×100 píxeles
+- Formato: PNG
+- Para tablero enemigo, cambia "ally" por "enemy" en todos los nombres
+- Puedes crear tiles gradualmente (el sistema los repetirá si faltan)
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
