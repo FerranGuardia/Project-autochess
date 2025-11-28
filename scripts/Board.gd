@@ -26,6 +26,8 @@ var global_dragged_unit: Unit = null
 # Sistema de juego
 var game_manager: GameManager
 var shop: Shop
+var enemy_ai: EnemyAI
+var combat_system: CombatSystem
 
 func _ready():
 	# Obtener referencias a los componentes
@@ -57,6 +59,9 @@ func _ready():
 	
 	# Ejecutar tests del sistema de oro y tienda
 	# run_shop_tests()  # Deshabilitado - Todos los tests pasan ✅ (ver docs/guides/GUIA_TESTS_TIENDA.md)
+	
+	# Ejecutar tests del sistema de enemigos
+	run_enemy_tests()  # ACTIVADO para probar enemigos
 
 func setup_drag_drop_coordination():
 	"""Coordina el drag and drop entre bench y grid"""
@@ -236,12 +241,21 @@ func run_shop_tests():
 	var shop_tests = ShopTests.new()
 	add_child(shop_tests)
 
+func run_enemy_tests():
+	"""Ejecuta todos los tests del sistema de enemigos"""
+	var enemy_tests = EnemyTests.new()
+	add_child(enemy_tests)
+
 func setup_game_systems():
 	"""Inicializa GameManager y Shop"""
 	# Crear GameManager
 	game_manager = GameManager.new()
 	game_manager.name = "GameManager"
 	add_child(game_manager)
+	
+	# Conectar GridEnemy con GameManager para otorgar loot
+	if grid_enemy:
+		grid_enemy.set_game_manager(game_manager)
 	
 	# Crear Shop
 	shop = Shop.new()
@@ -256,6 +270,23 @@ func setup_game_systems():
 	game_manager.round_changed.connect(_on_round_changed)
 	game_manager.lives_changed.connect(_on_lives_changed)
 	game_manager.game_over.connect(_on_game_over)
+	game_manager.combat_started.connect(_on_combat_started)
+	
+	# Crear sistema de IA de enemigos
+	enemy_ai = EnemyAI.new()
+	enemy_ai.name = "EnemyAI"
+	add_child(enemy_ai)
+	enemy_ai.initialize(grid_enemy, self)
+	
+	# Crear sistema de combate
+	combat_system = CombatSystem.new()
+	combat_system.name = "CombatSystem"
+	add_child(combat_system)
+	combat_system.initialize(grid_ally, grid_enemy, game_manager)
+	
+	# Conectar señales de combate
+	game_manager.combat_started.connect(_on_combat_started_system)
+	game_manager.combat_ended.connect(_on_combat_ended_system)
 	
 	# Crear UI de tienda
 	create_shop_ui()
@@ -279,6 +310,32 @@ func _on_lives_changed(new_lives: int):
 func _on_game_over():
 	"""Se llama cuando el juego termina"""
 	print("¡GAME OVER!")
+
+func _on_combat_started():
+	"""Se llama cuando inicia el combate - colocar enemigos y guardar posiciones"""
+	# Guardar posiciones iniciales de unidades aliadas
+	if grid_ally:
+		grid_ally.save_initial_positions()
+	
+	# Colocar enemigos
+	if enemy_ai and grid_enemy:
+		var current_round = game_manager.get_current_round()
+		enemy_ai.spawn_enemies_for_round(current_round)
+		print("Combate iniciado - Ronda ", current_round)
+
+func _on_combat_started_system():
+	"""Se llama cuando inicia el combate - iniciar sistema de combate"""
+	if combat_system:
+		combat_system.start_combat()
+
+func _on_combat_ended_system(_victory: bool):
+	"""Se llama cuando termina el combate - detener sistema de combate y revivir unidades"""
+	if combat_system:
+		combat_system.stop_combat()
+	
+	# Revivir todas las unidades aliadas y restaurar posiciones
+	if grid_ally:
+		grid_ally.resurrect_all_units()
 
 func purchase_unit_from_shop(offer_index: int) -> bool:
 	"""Intenta comprar una unidad de la tienda"""

@@ -32,6 +32,34 @@
    - Plan de espacio para UI
    - Layout de interfaz
 
+### Sistemas de Juego
+
+6. **`SISTEMA_FASES_RONDAS.md`**
+   - Sistema de fases (Preparación/Combate)
+   - Sistema de rondas con temporizador
+   - Flujo del juego
+
+7. **`SISTEMA_ORO_TIENDA.md`**
+   - Sistema de oro
+   - Sistema de tienda
+   - Compras y ofertas
+
+8. **`SISTEMA_COMBATE.md`** ⭐ **NUEVO**
+   - Sistema de combate con movimiento
+   - Detección de objetivos
+   - Ataques y cooldowns
+   - Fin de combate automático
+
+9. **`SISTEMA_BARRAS_VIDA.md`** ⭐ **NUEVO**
+   - Sistema de salud de unidades
+   - Barras de vida visuales
+   - Actualización automática
+
+10. **`SISTEMA_RESURRECCION.md`** ⭐ **NUEVO**
+    - Resurrección automática de unidades
+    - Restauración de posiciones
+    - Límite de 10 unidades en grid
+
 ---
 
 ## 📖 Cuándo Consultar
@@ -39,6 +67,9 @@
 - **Al trabajar con el tablero:** `ESPECIFICACIONES_TABLERO.md`
 - **Al entender la arquitectura:** `DESIGN_DECISIONS.md`
 - **Al planear UI:** `PLAN_ESPACIO_UI.md`
+- **Sistema de combate:** `SISTEMA_COMBATE.md`
+- **Sistema de rondas:** `SISTEMA_FASES_RONDAS.md`
+- **Sistema de salud:** `SISTEMA_BARRAS_VIDA.md`
 - **Referencia rápida:** `GUIA_CREAR_TABLERO.md`
 
 ---

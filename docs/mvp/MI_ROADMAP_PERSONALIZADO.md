@@ -52,39 +52,39 @@
 
 ## 📅 Roadmap por Semanas
 
-### Semana 1: Sistema de Compra y Oro
+### Semana 1: Sistema de Compra y Oro ✅ COMPLETADA
 **Meta:** Comprar unidades y colocarlas en el bench
 
 **Tareas:**
-- [ ] Día 1-2: Sistema de oro
-  - [ ] Crear `GameManager.gd` o agregar a `Board.gd`
-  - [ ] Variable `gold: int = 10` (o valor inicial)
-  - [ ] Funciones `add_gold(amount)` y `spend_gold(amount)`
-  - [ ] Validación de oro suficiente
-  - [ ] UI básica para mostrar oro (parte de UI pulida)
+- [x] Día 1-2: Sistema de oro
+  - [x] Crear `GameManager.gd`
+  - [x] Variable `gold: int = 10`
+  - [x] Funciones `add_gold(amount)` y `spend_gold(amount)`
+  - [x] Validación de oro suficiente
+  - [x] UI básica para mostrar oro (parte de UI pulida)
 
-- [ ] Día 3-4: UI de tienda
-  - [ ] Panel de tienda (diseño simple pero pulido)
-  - [ ] Mostrar 3-5 ofertas aleatorias
-  - [ ] Botones de compra con visualización de costos
-  - [ ] Feedback visual al comprar
-  - [ ] Mostrar unidades disponibles: Elfo(1), Enano(1), Beastkin(2), Mago(3), Orco(3), Demonio(3)
+- [x] Día 3-4: UI de tienda
+  - [x] Panel de tienda (diseño simple pero pulido)
+  - [x] Mostrar 5 ofertas aleatorias
+  - [x] Botones de compra con visualización de costos
+  - [x] Feedback visual al comprar
+  - [x] Mostrar unidades disponibles: Elfo(1), Enano(1), Beastkin(2), Mago(3), Orco(3), Demonio(3)
 
-- [ ] Día 5: Conexión compra → bench
-  - [ ] Validar oro suficiente antes de comprar
-  - [ ] Validar espacio en bench (máximo 8 slots)
-  - [ ] Compra automática → bench
-  - [ ] Actualizar UI de oro después de compra
-  - [ ] Manejar errores (sin oro, bench lleno)
+- [x] Día 5: Conexión compra → bench
+  - [x] Validar oro suficiente antes de comprar
+  - [x] Validar espacio en bench (máximo 10 slots)
+  - [x] Compra automática → bench
+  - [x] Actualizar UI de oro después de compra
+  - [x] Manejar errores (sin oro, bench lleno)
 
-- [ ] Día 6-7: Testing y ajustes
-  - [ ] Probar compra de todas las unidades
-  - [ ] Verificar costos correctos
-  - [ ] Verificar que aparecen en bench
-  - [ ] Ajustar costos si es necesario
-  - [ ] Testing de edge cases (bench lleno, sin oro)
+- [x] Día 6-7: Testing y ajustes
+  - [x] Probar compra de todas las unidades
+  - [x] Verificar costos correctos
+  - [x] Verificar que aparecen en bench
+  - [x] Tests unitarios completos (18 tests, todos pasan ✅)
+  - [x] Testing de edge cases (bench lleno, sin oro)
 
-**Resultado esperado:** Puedo comprar cualquier unidad y aparece en el bench correctamente
+**Resultado esperado:** ✅ Puedo comprar cualquier unidad y aparece en el bench correctamente
 
 ---
 
@@ -92,12 +92,14 @@
 **Meta:** Rondas completas con combate funcional
 
 **Tareas:**
-- [ ] Día 1-2: Sistema de vidas y rondas
-  - [ ] Contador de rondas (inicia en 1)
-  - [ ] Sistema de vidas (5 vidas iniciales)
-  - [ ] Perder ronda = perder 1 vida
-  - [ ] UI para mostrar ronda y vidas (parte de UI pulida)
-  - [ ] Sistema de oro por ronda (ganar oro al empezar nueva ronda)
+- [x] Día 1-2: Sistema de vidas y rondas
+  - [x] Contador de rondas (inicia en 1)
+  - [x] Sistema de vidas (5 vidas iniciales)
+  - [x] Perder ronda = perder 1 vida (implementado en end_combat)
+  - [x] UI para mostrar ronda y vidas (parte de UI pulida)
+  - [x] Sistema de oro por ronda (ganar oro al empezar nueva ronda)
+  - [x] Sistema de fases (preparación vs combate)
+  - [x] Botón para iniciar combate
 
 - [ ] Día 3-4: IA predefinida para enemigos
   - [ ] Crear composiciones fijas por ronda
@@ -196,12 +198,12 @@
 
 ## 📊 Progreso
 
-### Semana 1
-- [ ] Completada
+### Semana 1 ✅
+- [x] Completada
 - [ ] En progreso
 - [ ] Pendiente
 
-**Notas:** _____
+**Notas:** Sistema de oro y tienda completamente funcional. 18 tests unitarios pasan. Commit realizado.
 
 ### Semana 2
 - [ ] Completada

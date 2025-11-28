@@ -18,6 +18,9 @@ var cells: Array[Polygon2D] = []
 var units: Dictionary = {}  # Key: Vector2i(grid_position), Value: Unit
 var units_container: Node2D
 
+# Límite de unidades en el grid
+const MAX_UNITS_ON_GRID: int = 10
+
 # Sistema de drag and drop
 var dragged_unit: Unit = null
 var highlight_cell: Polygon2D = null
@@ -157,6 +160,21 @@ func place_unit(unit: Unit, col: int, row: int) -> bool:
 	
 	var grid_pos = Vector2i(col, row)
 	
+	# Verificar límite de unidades (solo si la unidad no está ya en el grid)
+	var current_pos = unit.get_grid_position()
+	var is_already_on_grid = current_pos.x >= 0 and current_pos.y >= 0
+	
+	if not is_already_on_grid:
+		# Contar unidades en el grid (solo las que están en el grid, no en el banquillo)
+		var units_on_grid = 0
+		for pos in units.keys():
+			if pos.y >= 0:  # Solo contar unidades en el grid (y >= 0)
+				units_on_grid += 1
+		
+		if units_on_grid >= MAX_UNITS_ON_GRID:
+			print("Error: Máximo de ", MAX_UNITS_ON_GRID, " unidades permitidas en el grid. Actual: ", units_on_grid)
+			return false
+	
 	# Verificar si la celda está ocupada (excepto si es la misma unidad moviéndose)
 	var existing_unit = get_unit_at(col, row)
 	if existing_unit and existing_unit != unit:
@@ -220,6 +238,65 @@ func get_unit_at(col: int, row: int) -> Unit:
 	if units.has(grid_pos):
 		return units[grid_pos]
 	return null
+
+func get_all_units() -> Array:
+	"""Obtiene todas las unidades en el grid"""
+	return units.values()
+
+func get_units_count_on_grid() -> int:
+	"""Obtiene el número de unidades en el grid (excluyendo banquillo)"""
+	var count = 0
+	for pos in units.keys():
+		if pos.y >= 0:  # Solo contar unidades en el grid (y >= 0)
+			count += 1
+	return count
+
+# ========== Sistema de Resurrección ==========
+
+var initial_positions: Dictionary = {}  # Key: Unit, Value: Vector2i (posición inicial)
+
+func save_initial_positions():
+	"""Guarda las posiciones iniciales de todas las unidades antes del combate"""
+	initial_positions.clear()
+	for unit in units.values():
+		if unit and unit.get_grid_position().y >= 0:  # Solo unidades en el grid
+			initial_positions[unit] = unit.get_grid_position()
+	print("Posiciones iniciales guardadas: ", initial_positions.size(), " unidades")
+
+func resurrect_all_units():
+	"""Revive todas las unidades aliadas y las restaura a sus posiciones iniciales"""
+	var resurrected_count = 0
+	
+	# Revivir todas las unidades que estaban en el grid inicialmente
+	for unit in initial_positions.keys():
+		if not is_instance_valid(unit):
+			continue
+		
+		# Revivir la unidad si está muerta
+		if not unit.is_alive():
+			# Restaurar salud completa
+			unit.current_health = unit.max_health
+			unit.update_health_bar()
+			resurrected_count += 1
+			print("Unidad ", unit.unit_name, " revivida")
+		
+		# Restaurar posición inicial
+		var initial_pos = initial_positions[unit]
+		if initial_pos.x >= 0 and initial_pos.y >= 0:
+			# Remover de posición actual si está en otra
+			var current_pos = unit.get_grid_position()
+			if current_pos != initial_pos:
+				remove_unit(unit)
+				place_unit(unit, initial_pos.x, initial_pos.y)
+			else:
+				# Solo actualizar posición visual si ya está en la posición correcta
+				var world_pos = get_world_position(initial_pos.x, initial_pos.y)
+				unit.position = to_local(world_pos)
+	
+	print("Unidades revividas: ", resurrected_count)
+	
+	# Limpiar posiciones iniciales después de resucitar
+	initial_positions.clear()
 
 # ========== Sistema de Drag and Drop ==========
 
