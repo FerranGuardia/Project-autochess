@@ -4,6 +4,8 @@ class_name GridEnemy
 ## Grid del tablero enemigo (7×5 celdas)
 ## Visualización y gestión del grid superior
 
+const BoardTileHelper = preload("res://scripts/BoardTileHelper.gd")
+
 const CELL_SIZE = 100
 const COLUMNS = 7
 const ROWS = 5
@@ -70,15 +72,19 @@ func load_and_place_tiles():
 		child.queue_free()
 	
 	var tiles_loaded = 0
+	# Cargando tiles del grid enemigo...
 	
 	# Colocar tiles en cada celda del grid (7×5 = 35 tiles)
 	for row in range(ROWS):
 		for col in range(COLUMNS):
 			var tile_sprite = load_tile_for_cell(col, row)
 			if tile_sprite:
-				# Calcular posición de la celda
-				var cell_pos = get_world_position(col, row)
-				tile_sprite.position = to_local(cell_pos)
+				# Calcular posición de la celda desde la esquina superior izquierda
+				# Para alinearse con los tiles del borde que usan esquina superior izquierda
+				var cell_center = get_world_position(col, row)
+				# Convertir centro de celda a esquina superior izquierda (centered = false)
+				var cell_top_left = cell_center - Vector2(CELL_SIZE / 2.0, CELL_SIZE / 2.0)
+				tile_sprite.position = to_local(cell_top_left)
 				tile_sprite.z_index = -1
 				
 				tiles_container.add_child(tile_sprite)
@@ -91,35 +97,29 @@ func load_and_place_tiles():
 		print("⚠ No se encontraron tiles para arena enemiga. Usando fallback.")
 
 func load_tile_for_cell(col: int, row: int) -> Sprite2D:
-	"""Intenta cargar un tile específico para una celda"""
-	# Calcular índice del tile (0-34 para grid 7×5)
-	var tile_index = row * COLUMNS + col
+	"""Intenta cargar un tile específico para una celda del tablero completo"""
+	# Calcular índice del tile del tablero completo (1-108)
+	# Grid enemigo está en las filas 1-5 del tablero completo
+	var tile_index = BoardTileHelper.get_enemy_tile_index(col, row)
 	
-	# Intentar cargar tile específico primero
-	var specific_tile_path = "res://assets/sprites/arena/tiles/enemy/tile_enemy_%02d.png" % tile_index
-	if ResourceLoader.exists(specific_tile_path):
-		var texture = load(specific_tile_path) as Texture2D
+	# Intentar cargar tile específico del tablero completo
+	var tile_path = BoardTileHelper.get_tile_path(tile_index)
+	if ResourceLoader.exists(tile_path):
+		var texture = load(tile_path) as Texture2D
 		if texture:
 			var sprite = Sprite2D.new()
 			sprite.texture = texture
 			sprite.centered = false
 			sprite.name = "Tile_%d_%d" % [col, row]
+			# Tile cargado correctamente
 			return sprite
+		else:
+			pass  # Textura no se pudo cargar
+	else:
+		pass  # Tile no encontrado
 	
-	# Si no existe tile específico, intentar cargar tiles genéricos en orden
-	# Esto permite crear tiles gradualmente
-	for i in range(10):  # Intentar hasta 10 tiles genéricos
-		var generic_tile_path = "res://assets/sprites/arena/tiles/enemy/tile_enemy_%02d.png" % i
-		if ResourceLoader.exists(generic_tile_path):
-			var texture = load(generic_tile_path) as Texture2D
-			if texture:
-				var sprite = Sprite2D.new()
-				sprite.texture = texture
-				sprite.centered = false
-				sprite.name = "Tile_%d_%d" % [col, row]
-				return sprite
-	
-	# Si no hay tiles, retornar null (se usará fallback)
+	# No usar fallback genérico - solo cargar el tile específico
+	# Si no existe, retornar null (se usará fallback de fondo)
 	return null
 
 func create_fallback_background():
@@ -140,7 +140,7 @@ func create_fallback_background():
 	])
 	background = polygon
 	add_child(background)
-	print("⚠ Usando fondo temporal. Crea tiles en assets/sprites/arena/tiles/enemy/")
+	print("⚠ Usando fondo temporal. Crea tiles en assets/sprites/arena/tiles/board/")
 
 func create_cell(col: int, row: int):
 	"""Crea una celda individual en la posición (col, row)"""
