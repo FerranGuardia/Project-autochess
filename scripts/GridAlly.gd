@@ -10,7 +10,7 @@ const ROWS = 5
 
 # Referencia al contenedor de celdas (se crean dinámicamente)
 var cells_container: Node2D
-var background: Polygon2D
+var background: Node2D  # Puede ser Sprite2D o Polygon2D
 
 var cells: Array[Polygon2D] = []
 
@@ -64,20 +64,56 @@ func setup_units_container():
 		add_child(units_container)
 
 func create_grid():
-	"""Crea el grid visual de 7×5 celdas"""
-	# Crear fondo del grid
+	"""Crea el grid visual de 7×5 celdas con arena"""
+	# Crear fondo de arena con sprite (o fallback a Polygon2D)
 	if not background:
-		background = Polygon2D.new()
-		background.name = "Background"
-		background.color = Color(0.2, 0.2, 1.0, 0.25)  # Azul semitransparente
-		var width = float(COLUMNS * CELL_SIZE)
-		var height = float(ROWS * CELL_SIZE)
-		background.polygon = PackedVector2Array([
-			Vector2(-width / 2.0, -height / 2.0),
-			Vector2(width / 2.0, -height / 2.0),
-			Vector2(width / 2.0, height / 2.0),
-			Vector2(-width / 2.0, height / 2.0)
-		])
+		var arena_path = "res://assets/sprites/arena/arena_ally.png"
+		var arena_texture = null
+		
+		# Intentar cargar la textura
+		if ResourceLoader.exists(arena_path):
+			var resource = ResourceLoader.load(arena_path)
+			if resource != null and resource is Texture2D:
+				arena_texture = resource
+		
+		if arena_texture != null:
+			# Usar Sprite2D con la arena generada
+			var sprite = Sprite2D.new()
+			sprite.name = "Background"
+			sprite.texture = arena_texture
+			sprite.centered = true
+			
+			# Escalar si es necesario (debe ser 700×500px)
+			var grid_width = float(COLUMNS * CELL_SIZE)  # 700px
+			var grid_height = float(ROWS * CELL_SIZE)    # 500px
+			var tex_width = arena_texture.get_width()
+			var tex_height = arena_texture.get_height()
+			
+			if tex_width > 0 and tex_height > 0:
+				sprite.scale = Vector2(
+					grid_width / tex_width,
+					grid_height / tex_height
+				)
+			
+			sprite.z_index = -1  # Detrás de las unidades
+			background = sprite
+			print("✓ Arena aliada cargada desde sprite")
+		else:
+			# Fallback: usar Polygon2D temporal
+			var polygon = Polygon2D.new()
+			polygon.name = "Background"
+			polygon.color = Color(0.2, 0.2, 1.0, 0.25)  # Azul semitransparente
+			var width = float(COLUMNS * CELL_SIZE)
+			var height = float(ROWS * CELL_SIZE)
+			polygon.polygon = PackedVector2Array([
+				Vector2(-width / 2.0, -height / 2.0),
+				Vector2(width / 2.0, -height / 2.0),
+				Vector2(width / 2.0, height / 2.0),
+				Vector2(-width / 2.0, height / 2.0)
+			])
+			background = polygon
+			print("⚠ Arena aliada no encontrada, usando fallback. Ejecuta generate_arena.gd para generar las arenas.")
+		
 		add_child(background)
 	
 	# Crear contenedor de celdas si no existe
@@ -101,8 +137,8 @@ func create_cell(col: int, row: int):
 	var y = (float(row) - float(ROWS) / 2.0 + 0.5) * float(CELL_SIZE)
 	var pos = Vector2(x - float(CELL_SIZE) / 2.0, y - float(CELL_SIZE) / 2.0)
 	
-	# Crear polígono rectangular para la celda
-	cell.color = Color(0.3, 0.3, 1.0, 0.1)  # Azul muy transparente
+	# Crear polígono rectangular para la celda (invisible, solo para lógica)
+	cell.color = Color(1.0, 1.0, 1.0, 0.0)  # Completamente invisible
 	var cell_size_float = float(CELL_SIZE)
 	cell.polygon = PackedVector2Array([
 		pos,
@@ -111,9 +147,8 @@ func create_cell(col: int, row: int):
 		pos + Vector2(0, cell_size_float)
 	])
 	
-	# Crear borde de la celda
-	var border = create_cell_border(pos, Vector2(cell_size_float, cell_size_float))
-	cells_container.add_child(border)
+	# NO crear bordes por defecto (solo aparecerán en highlight durante drag)
+	# Los bordes se crean dinámicamente en update_highlight_cell()
 	
 	cells_container.add_child(cell)
 	cells.append(cell)
