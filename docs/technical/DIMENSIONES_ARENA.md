@@ -20,8 +20,8 @@
 #### Tiles Decorativos Alrededor
 - **Arriba:** 7 tiles de 100×100px = 700px de ancho
 - **Abajo:** 7 tiles de 100×100px = 700px de ancho
-- **Izquierda:** 5 tiles de 100×100px = 500px de alto
-- **Derecha:** 5 tiles de 100×100px = 500px de alto
+- **Izquierda:** 7 tiles de 100×100px = 700px de alto (5 del grid + 1 arriba + 1 abajo)
+- **Derecha:** 7 tiles de 100×100px = 700px de alto (5 del grid + 1 arriba + 1 abajo)
 - **Esquinas:** 4 tiles de 100×100px cada uno
 
 #### Cálculo del Tamaño Total

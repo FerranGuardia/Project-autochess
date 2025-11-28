@@ -32,11 +32,11 @@ Para cada grid (aliado y enemigo), se colocan tiles alrededor:
 
 - **Arriba (top):** 7 tiles
 - **Abajo (bottom):** 7 tiles
-- **Izquierda (left):** 5 tiles
-- **Derecha (right):** 5 tiles
+- **Izquierda (left):** 7 tiles (5 del grid + 1 arriba + 1 abajo)
+- **Derecha (right):** 7 tiles (5 del grid + 1 arriba + 1 abajo)
 - **Esquinas:** 4 tiles (top_left, top_right, bottom_left, bottom_right)
 
-**Total:** 28 tiles decorativos por grid
+**Total:** 32 tiles decorativos por grid
 
 ---
 
@@ -75,8 +75,12 @@ decorative_[tipo]_[lado]_[índice].png
 - `decorative_ally_top_00.png` - Primer tile arriba
 - `decorative_ally_top_01.png` - Segundo tile arriba
 - `decorative_ally_bottom_00.png` - Primer tile abajo
-- `decorative_ally_left_00.png` - Primer tile izquierda
-- `decorative_ally_right_00.png` - Primer tile derecha
+- `decorative_ally_left_00.png` - Primer tile izquierda (del grid)
+- `decorative_ally_left_top_00.png` - Tile arriba del lado izquierdo
+- `decorative_ally_left_bottom_00.png` - Tile abajo del lado izquierdo
+- `decorative_ally_right_00.png` - Primer tile derecha (del grid)
+- `decorative_ally_right_top_00.png` - Tile arriba del lado derecho
+- `decorative_ally_right_bottom_00.png` - Tile abajo del lado derecho
 - `decorative_ally_top_left_00.png` - Esquina superior izquierda
 - `decorative_ally_top_right_00.png` - Esquina superior derecha
 - `decorative_ally_bottom_left_00.png` - Esquina inferior izquierda

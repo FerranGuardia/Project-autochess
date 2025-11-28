@@ -210,7 +210,19 @@ func load_and_place_decorative_tiles():
 			decorative_tiles.append(tile)
 			tiles_loaded += 1
 	
-	# Izquierda: 5 tiles (una columna completa, sin esquinas)
+	# Izquierda: 7 tiles (5 del grid + 1 arriba + 1 abajo)
+	# Tile arriba del lado izquierdo
+	var left_top_tile = load_decorative_tile("left_top", 0)
+	if left_top_tile:
+		var x = left_edge - float(CELL_SIZE) / 2.0
+		var y = top_edge - float(CELL_SIZE) / 2.0
+		left_top_tile.position = Vector2(x, y)
+		left_top_tile.z_index = -2
+		decorative_tiles_container.add_child(left_top_tile)
+		decorative_tiles.append(left_top_tile)
+		tiles_loaded += 1
+	
+	# 5 tiles del lado izquierdo (del grid)
 	for row in range(ROWS):
 		var tile = load_decorative_tile("left", row)
 		if tile:
@@ -222,7 +234,30 @@ func load_and_place_decorative_tiles():
 			decorative_tiles.append(tile)
 			tiles_loaded += 1
 	
-	# Derecha: 5 tiles (una columna completa, sin esquinas)
+	# Tile abajo del lado izquierdo
+	var left_bottom_tile = load_decorative_tile("left_bottom", 0)
+	if left_bottom_tile:
+		var x = left_edge - float(CELL_SIZE) / 2.0
+		var y = bottom_edge + float(CELL_SIZE) / 2.0
+		left_bottom_tile.position = Vector2(x, y)
+		left_bottom_tile.z_index = -2
+		decorative_tiles_container.add_child(left_bottom_tile)
+		decorative_tiles.append(left_bottom_tile)
+		tiles_loaded += 1
+	
+	# Derecha: 7 tiles (5 del grid + 1 arriba + 1 abajo)
+	# Tile arriba del lado derecho
+	var right_top_tile = load_decorative_tile("right_top", 0)
+	if right_top_tile:
+		var x = right_edge + float(CELL_SIZE) / 2.0
+		var y = top_edge - float(CELL_SIZE) / 2.0
+		right_top_tile.position = Vector2(x, y)
+		right_top_tile.z_index = -2
+		decorative_tiles_container.add_child(right_top_tile)
+		decorative_tiles.append(right_top_tile)
+		tiles_loaded += 1
+	
+	# 5 tiles del lado derecho (del grid)
 	for row in range(ROWS):
 		var tile = load_decorative_tile("right", row)
 		if tile:
@@ -233,6 +268,17 @@ func load_and_place_decorative_tiles():
 			decorative_tiles_container.add_child(tile)
 			decorative_tiles.append(tile)
 			tiles_loaded += 1
+	
+	# Tile abajo del lado derecho
+	var right_bottom_tile = load_decorative_tile("right_bottom", 0)
+	if right_bottom_tile:
+		var x = right_edge + float(CELL_SIZE) / 2.0
+		var y = bottom_edge + float(CELL_SIZE) / 2.0
+		right_bottom_tile.position = Vector2(x, y)
+		right_bottom_tile.z_index = -2
+		decorative_tiles_container.add_child(right_bottom_tile)
+		decorative_tiles.append(right_bottom_tile)
+		tiles_loaded += 1
 	
 	# Esquinas: 4 tiles
 	var corner_positions = [
