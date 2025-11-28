@@ -10,11 +10,13 @@ const ROWS = 5
 
 # Referencia al contenedor de celdas (se crean dinámicamente)
 var cells_container: Node2D
-var tiles_container: Node2D  # Contenedor para los tiles individuales
+var tiles_container: Node2D  # Contenedor para los tiles individuales del grid
+var decorative_tiles_container: Node2D  # Contenedor para tiles decorativos alrededor
 var background: Node2D  # Fallback Polygon2D si no hay tiles
 
 var cells: Array[Polygon2D] = []
-var tiles: Array[Sprite2D] = []  # Array de sprites de tiles
+var tiles: Array[Sprite2D] = []  # Array de sprites de tiles del grid
+var decorative_tiles: Array[Sprite2D] = []  # Array de sprites de tiles decorativos
 
 # Sistema de unidades
 var units: Dictionary = {}  # Key: Vector2i(grid_position), Value: Unit
@@ -67,15 +69,25 @@ func setup_units_container():
 
 func create_grid():
 	"""Crea el grid visual de 7×5 celdas con tiles individuales"""
-	# Crear contenedor para tiles si no existe
+	# Crear contenedor para tiles del grid si no existe
 	if not tiles_container:
 		tiles_container = Node2D.new()
 		tiles_container.name = "TilesContainer"
 		add_child(tiles_container)
 		tiles_container.z_index = -1  # Detrás de las unidades
 	
-	# Cargar y colocar tiles individuales
+	# Crear contenedor para tiles decorativos si no existe
+	if not decorative_tiles_container:
+		decorative_tiles_container = Node2D.new()
+		decorative_tiles_container.name = "DecorativeTilesContainer"
+		add_child(decorative_tiles_container)
+		decorative_tiles_container.z_index = -2  # Detrás de los tiles del grid
+	
+	# Cargar y colocar tiles individuales del grid
 	load_and_place_tiles()
+	
+	# Cargar y colocar tiles decorativos alrededor
+	load_and_place_decorative_tiles()
 	
 	# Si no hay tiles, usar fallback
 	if tiles.is_empty():
@@ -151,6 +163,124 @@ func load_tile_for_cell(col: int, row: int) -> Sprite2D:
 				return sprite
 	
 	# Si no hay tiles, retornar null (se usará fallback)
+	return null
+
+func load_and_place_decorative_tiles():
+	"""Carga y coloca tiles decorativos alrededor del grid de combate"""
+	decorative_tiles.clear()
+	
+	# Limpiar tiles decorativos anteriores
+	for child in decorative_tiles_container.get_children():
+		child.queue_free()
+	
+	var tiles_loaded = 0
+	
+	# Calcular dimensiones del grid
+	var grid_width = float(COLUMNS * CELL_SIZE)  # 700px
+	var grid_height = float(ROWS * CELL_SIZE)    # 500px
+	
+	# Calcular posiciones de los bordes
+	var left_edge = -grid_width / 2.0
+	var right_edge = grid_width / 2.0
+	var top_edge = -grid_height / 2.0
+	var bottom_edge = grid_height / 2.0
+	
+	# Colocar tiles decorativos alrededor del grid
+	# Arriba: 7 tiles (una fila completa)
+	for col in range(COLUMNS):
+		var tile = load_decorative_tile("top", col)
+		if tile:
+			var x = (float(col) - float(COLUMNS) / 2.0 + 0.5) * float(CELL_SIZE)
+			var y = top_edge - float(CELL_SIZE) / 2.0
+			tile.position = Vector2(x, y)
+			tile.z_index = -2
+			decorative_tiles_container.add_child(tile)
+			decorative_tiles.append(tile)
+			tiles_loaded += 1
+	
+	# Abajo: 7 tiles (una fila completa)
+	for col in range(COLUMNS):
+		var tile = load_decorative_tile("bottom", col)
+		if tile:
+			var x = (float(col) - float(COLUMNS) / 2.0 + 0.5) * float(CELL_SIZE)
+			var y = bottom_edge + float(CELL_SIZE) / 2.0
+			tile.position = Vector2(x, y)
+			tile.z_index = -2
+			decorative_tiles_container.add_child(tile)
+			decorative_tiles.append(tile)
+			tiles_loaded += 1
+	
+	# Izquierda: 5 tiles (una columna completa, sin esquinas)
+	for row in range(ROWS):
+		var tile = load_decorative_tile("left", row)
+		if tile:
+			var x = left_edge - float(CELL_SIZE) / 2.0
+			var y = (float(row) - float(ROWS) / 2.0 + 0.5) * float(CELL_SIZE)
+			tile.position = Vector2(x, y)
+			tile.z_index = -2
+			decorative_tiles_container.add_child(tile)
+			decorative_tiles.append(tile)
+			tiles_loaded += 1
+	
+	# Derecha: 5 tiles (una columna completa, sin esquinas)
+	for row in range(ROWS):
+		var tile = load_decorative_tile("right", row)
+		if tile:
+			var x = right_edge + float(CELL_SIZE) / 2.0
+			var y = (float(row) - float(ROWS) / 2.0 + 0.5) * float(CELL_SIZE)
+			tile.position = Vector2(x, y)
+			tile.z_index = -2
+			decorative_tiles_container.add_child(tile)
+			decorative_tiles.append(tile)
+			tiles_loaded += 1
+	
+	# Esquinas: 4 tiles
+	var corner_positions = [
+		{"side": "top_left", "pos": Vector2(left_edge - float(CELL_SIZE) / 2.0, top_edge - float(CELL_SIZE) / 2.0)},
+		{"side": "top_right", "pos": Vector2(right_edge + float(CELL_SIZE) / 2.0, top_edge - float(CELL_SIZE) / 2.0)},
+		{"side": "bottom_left", "pos": Vector2(left_edge - float(CELL_SIZE) / 2.0, bottom_edge + float(CELL_SIZE) / 2.0)},
+		{"side": "bottom_right", "pos": Vector2(right_edge + float(CELL_SIZE) / 2.0, bottom_edge + float(CELL_SIZE) / 2.0)}
+	]
+	
+	for corner in corner_positions:
+		var tile = load_decorative_tile(corner.side, 0)
+		if tile:
+			tile.position = corner.pos
+			tile.z_index = -2
+			decorative_tiles_container.add_child(tile)
+			decorative_tiles.append(tile)
+			tiles_loaded += 1
+	
+	if tiles_loaded > 0:
+		print("✓ Tiles decorativos cargados para arena aliada: ", tiles_loaded)
+	else:
+		print("⚠ No se encontraron tiles decorativos para arena aliada")
+
+func load_decorative_tile(side: String, index: int) -> Sprite2D:
+	"""Carga un tile decorativo específico para un lado o esquina"""
+	# Intentar cargar tile específico: decorative_ally_top_00.png, etc.
+	var specific_path = "res://assets/sprites/arena/decorative/ally/decorative_ally_%s_%02d.png" % [side, index]
+	if ResourceLoader.exists(specific_path):
+		var texture = load(specific_path) as Texture2D
+		if texture:
+			var sprite = Sprite2D.new()
+			sprite.texture = texture
+			sprite.centered = false
+			sprite.name = "Decorative_%s_%d" % [side, index]
+			return sprite
+	
+	# Si no existe específico, intentar cargar genérico para ese lado
+	var generic_path = "res://assets/sprites/arena/decorative/ally/decorative_ally_%s_00.png" % side
+	if ResourceLoader.exists(generic_path):
+		var texture = load(generic_path) as Texture2D
+		if texture:
+			var sprite = Sprite2D.new()
+			sprite.texture = texture
+			sprite.centered = false
+			sprite.name = "Decorative_%s_%d" % [side, index]
+			return sprite
+	
+	# Si no hay tiles, retornar null
 	return null
 
 func create_fallback_background():
