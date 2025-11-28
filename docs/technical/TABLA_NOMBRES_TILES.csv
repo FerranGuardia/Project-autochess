@@ -34,36 +34,3 @@ Grid Combate,3,4,31,tile_ally_31.png,assets/sprites/arena/tiles/ally/,
 Grid Combate,4,4,32,tile_ally_32.png,assets/sprites/arena/tiles/ally/,
 Grid Combate,5,4,33,tile_ally_33.png,assets/sprites/arena/tiles/ally/,
 Grid Combate,6,4,34,tile_ally_34.png,assets/sprites/arena/tiles/ally/,Última celda (esquina inferior derecha)
-Decorativo Top,0,-,0,decorative_ally_top_00.png,assets/sprites/arena/decorative/ally/,Primer tile arriba
-Decorativo Top,1,-,1,decorative_ally_top_01.png,assets/sprites/arena/decorative/ally/,
-Decorativo Top,2,-,2,decorative_ally_top_02.png,assets/sprites/arena/decorative/ally/,
-Decorativo Top,3,-,3,decorative_ally_top_03.png,assets/sprites/arena/decorative/ally/,
-Decorativo Top,4,-,4,decorative_ally_top_04.png,assets/sprites/arena/decorative/ally/,
-Decorativo Top,5,-,5,decorative_ally_top_05.png,assets/sprites/arena/decorative/ally/,
-Decorativo Top,6,-,6,decorative_ally_top_06.png,assets/sprites/arena/decorative/ally/,Último tile arriba
-Decorativo Bottom,0,-,0,decorative_ally_bottom_00.png,assets/sprites/arena/decorative/ally/,Primer tile abajo
-Decorativo Bottom,1,-,1,decorative_ally_bottom_01.png,assets/sprites/arena/decorative/ally/,
-Decorativo Bottom,2,-,2,decorative_ally_bottom_02.png,assets/sprites/arena/decorative/ally/,
-Decorativo Bottom,3,-,3,decorative_ally_bottom_03.png,assets/sprites/arena/decorative/ally/,
-Decorativo Bottom,4,-,4,decorative_ally_bottom_04.png,assets/sprites/arena/decorative/ally/,
-Decorativo Bottom,5,-,5,decorative_ally_bottom_05.png,assets/sprites/arena/decorative/ally/,
-Decorativo Bottom,6,-,6,decorative_ally_bottom_06.png,assets/sprites/arena/decorative/ally/,Último tile abajo
-Decorativo Left Top,-,-,0,decorative_ally_left_top_00.png,assets/sprites/arena/decorative/ally/,Tile arriba del lado izquierdo
-Decorativo Left,0,-,0,decorative_ally_left_00.png,assets/sprites/arena/decorative/ally/,Primer tile izquierda (del grid)
-Decorativo Left,1,-,1,decorative_ally_left_01.png,assets/sprites/arena/decorative/ally/,
-Decorativo Left,2,-,2,decorative_ally_left_02.png,assets/sprites/arena/decorative/ally/,
-Decorativo Left,3,-,3,decorative_ally_left_03.png,assets/sprites/arena/decorative/ally/,
-Decorativo Left,4,-,4,decorative_ally_left_04.png,assets/sprites/arena/decorative/ally/,Último tile izquierda (del grid)
-Decorativo Left Bottom,-,-,0,decorative_ally_left_bottom_00.png,assets/sprites/arena/decorative/ally/,Tile abajo del lado izquierdo
-Decorativo Right Top,-,-,0,decorative_ally_right_top_00.png,assets/sprites/arena/decorative/ally/,Tile arriba del lado derecho
-Decorativo Right,0,-,0,decorative_ally_right_00.png,assets/sprites/arena/decorative/ally/,Primer tile derecha (del grid)
-Decorativo Right,1,-,1,decorative_ally_right_01.png,assets/sprites/arena/decorative/ally/,
-Decorativo Right,2,-,2,decorative_ally_right_02.png,assets/sprites/arena/decorative/ally/,
-Decorativo Right,3,-,3,decorative_ally_right_03.png,assets/sprites/arena/decorative/ally/,
-Decorativo Right,4,-,4,decorative_ally_right_04.png,assets/sprites/arena/decorative/ally/,Último tile derecha (del grid)
-Decorativo Right Bottom,-,-,0,decorative_ally_right_bottom_00.png,assets/sprites/arena/decorative/ally/,Tile abajo del lado derecho
-Decorativo Esquina,-,-,0,decorative_ally_top_left_00.png,assets/sprites/arena/decorative/ally/,Esquina superior izquierda
-Decorativo Esquina,-,-,0,decorative_ally_top_right_00.png,assets/sprites/arena/decorative/ally/,Esquina superior derecha
-Decorativo Esquina,-,-,0,decorative_ally_bottom_left_00.png,assets/sprites/arena/decorative/ally/,Esquina inferior izquierda
-Decorativo Esquina,-,-,0,decorative_ally_bottom_right_00.png,assets/sprites/arena/decorative/ally/,Esquina inferior derecha
-

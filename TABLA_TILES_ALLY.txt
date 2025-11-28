@@ -34,52 +34,11 @@ Fila 4 (Abajo):
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│ TILES DECORATIVOS (32 tiles)                                                       │
-│ Carpeta: assets/sprites/arena/decorative/ally/                                     │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-
-ARRIBA (7 tiles):
-  decorative_ally_top_00.png    decorative_ally_top_01.png    decorative_ally_top_02.png
-  decorative_ally_top_03.png    decorative_ally_top_04.png    decorative_ally_top_05.png
-  decorative_ally_top_06.png
-
-ABAJO (7 tiles):
-  decorative_ally_bottom_00.png    decorative_ally_bottom_01.png    decorative_ally_bottom_02.png
-  decorative_ally_bottom_03.png    decorative_ally_bottom_04.png    decorative_ally_bottom_05.png
-  decorative_ally_bottom_06.png
-
-IZQUIERDA (7 tiles):
-  decorative_ally_left_top_00.png      (arriba del lado izquierdo)
-  decorative_ally_left_00.png         (fila 0 del grid)
-  decorative_ally_left_01.png          (fila 1 del grid)
-  decorative_ally_left_02.png          (fila 2 del grid)
-  decorative_ally_left_03.png          (fila 3 del grid)
-  decorative_ally_left_04.png          (fila 4 del grid)
-  decorative_ally_left_bottom_00.png   (abajo del lado izquierdo)
-
-DERECHA (7 tiles):
-  decorative_ally_right_top_00.png      (arriba del lado derecho)
-  decorative_ally_right_00.png         (fila 0 del grid)
-  decorative_ally_right_01.png         (fila 1 del grid)
-  decorative_ally_right_02.png         (fila 2 del grid)
-  decorative_ally_right_03.png         (fila 3 del grid)
-  decorative_ally_right_04.png         (fila 4 del grid)
-  decorative_ally_right_bottom_00.png   (abajo del lado derecho)
-
-ESQUINAS (4 tiles):
-  decorative_ally_top_left_00.png      (esquina superior izquierda)
-  decorative_ally_top_right_00.png     (esquina superior derecha)
-  decorative_ally_bottom_left_00.png   (esquina inferior izquierda)
-  decorative_ally_bottom_right_00.png  (esquina inferior derecha)
-
-═══════════════════════════════════════════════════════════════════════════════════════
-
 NOTAS:
 - Todos los tiles son de 100×100 píxeles
 - Formato: PNG
 - Para tablero enemigo, cambia "ally" por "enemy" en todos los nombres
 - Puedes crear tiles gradualmente (el sistema los repetirá si faltan)
+- Total: 35 tiles por grid (solo tiles del grid de combate)
 
 ═══════════════════════════════════════════════════════════════════════════════════════
-
