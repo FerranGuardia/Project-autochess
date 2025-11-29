@@ -143,10 +143,6 @@ func load_tile_for_cell(col: int, row: int) -> Sprite2D:
 			sprite.name = "Tile_%d_%d" % [col, row]
 			# Tile cargado correctamente
 			return sprite
-		else:
-			pass  # Textura no se pudo cargar
-	else:
-		pass  # Tile no encontrado
 	
 	# No usar fallback genérico - solo cargar el tile específico
 	# Si no existe, retornar null (se usará fallback de fondo)

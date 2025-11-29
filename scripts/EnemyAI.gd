@@ -114,7 +114,7 @@ func get_round_composition(round_number: int) -> Array:
 		var base_composition = round_compositions[max_round].duplicate()
 		# Agregar enemigos adicionales según la ronda
 		var additional_enemies = round_number - max_round
-		for i in range(additional_enemies):
+		for _i in range(additional_enemies):
 			# Agregar un enemigo aleatorio en posición libre
 			var enemy_types = [EnemyData.EnemyType.GOBLIN_BOW, EnemyData.EnemyType.GOBLIN_DAGGER, EnemyData.EnemyType.GOBLIN_SHIELD]
 			var random_type = enemy_types[randi() % enemy_types.size()]
@@ -163,8 +163,8 @@ func find_free_position() -> Vector2i:
 		return Vector2i(-1, -1)
 	
 	# Buscar desde el centro hacia afuera
-	var center_col = grid_enemy.COLUMNS / 2
-	var center_row = grid_enemy.ROWS / 2
+	var center_col = int(grid_enemy.COLUMNS / 2.0)
+	var center_row = int(grid_enemy.ROWS / 2.0)
 	
 	# Buscar en espiral desde el centro
 	for radius in range(max(grid_enemy.COLUMNS, grid_enemy.ROWS)):

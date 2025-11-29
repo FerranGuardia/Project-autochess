@@ -341,14 +341,15 @@ func _on_mouse_exited():
 	# Remover feedback visual (implementar en el futuro si es necesario)
 	pass
 
-func start_drag(mouse_pos: Vector2):
+func start_drag(_mouse_pos: Vector2):
 	"""Inicia el arrastre de la unidad"""
 	if is_dragging:
 		return
 	
 	is_dragging = true
 	original_position = global_position
-	drag_offset = global_position - mouse_pos
+	var actual_mouse_pos = get_global_mouse_position()
+	drag_offset = global_position - actual_mouse_pos
 	
 	# Elevar la unidad visualmente (z_index)
 	z_index = 10
@@ -373,7 +374,7 @@ func _input(event: InputEvent):
 				if is_dragging:
 					end_drag(get_global_mouse_position())
 
-func end_drag(mouse_pos: Vector2):
+func end_drag(_mouse_pos: Vector2):
 	"""Termina el arrastre de la unidad"""
 	if not is_dragging:
 		return
@@ -382,5 +383,5 @@ func end_drag(mouse_pos: Vector2):
 	z_index = 0
 	set_process_input(false)
 	
-	# Emitir señal con la posición final
-	drag_ended.emit(self, mouse_pos)
+	# Emitir señal con la posición final (usamos get_global_mouse_position() para obtener la posición real)
+	drag_ended.emit(self, get_global_mouse_position())
