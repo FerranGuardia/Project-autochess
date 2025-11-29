@@ -73,6 +73,5 @@ static func verify_specific_positions():
 	print("\nEsquina inferior derecha:")
 	verify_tile_exists(108)
 	
-	var separator = "============================================================"
 	print(separator + "\n")
 
