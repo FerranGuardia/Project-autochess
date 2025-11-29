@@ -5,22 +5,22 @@ class_name ShopUI
 ## Muestra las ofertas y permite comprar unidades
 
 # Referencias
-var board: Board
-var shop: Shop
-var game_manager: GameManager
+var board: Board = null
+var shop: Shop = null
+var game_manager: GameManager = null
 
 # Nodos de UI - TIENDA
-var gold_label: Label
-var round_label: Label
-var lives_label: Label
-var phase_label: Label
-var shop_panel: Panel
-var offers_container: VBoxContainer
-var refresh_button: Button
+var gold_label: Label = null
+var round_label: Label = null
+var lives_label: Label = null
+var phase_label: Label = null
+var shop_panel: Panel = null
+var offers_container: VBoxContainer = null
+var refresh_button: Button = null
 
 # Nodos de UI - CONTROLES (separado de la tienda)
-var control_panel: Panel
-var start_combat_button: Button
+var control_panel: Panel = null
+var start_combat_button: Button = null
 
 # Constantes de UI - TIENDA
 const SHOP_PANEL_WIDTH = 600

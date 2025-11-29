@@ -11,16 +11,16 @@ const COLUMNS = 7
 const ROWS = 5
 
 # Referencia al contenedor de celdas (se crean dinámicamente)
-var cells_container: Node2D
-var tiles_container: Node2D  # Contenedor para los tiles individuales del grid
-var background: Node2D  # Fallback Polygon2D si no hay tiles
+var cells_container: Node2D = null
+var tiles_container: Node2D = null  # Contenedor para los tiles individuales del grid
+var background: Node2D = null  # Fallback Polygon2D si no hay tiles
 
 var cells: Array[Polygon2D] = []
 var tiles: Array[Sprite2D] = []  # Array de sprites de tiles del grid
 
 # Sistema de unidades
 var units: Dictionary = {}  # Key: Vector2i(grid_position), Value: Unit
-var units_container: Node2D
+var units_container: Node2D = null
 
 # Límite de unidades en el grid
 const MAX_UNITS_ON_GRID: int = 10

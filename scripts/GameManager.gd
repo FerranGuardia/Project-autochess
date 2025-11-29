@@ -36,7 +36,7 @@ var current_phase: Phase = Phase.PREPARATION
 
 # Sistema de temporizador de preparación
 const PREPARATION_TIME: float = 30.0  # 30 segundos de preparación
-var preparation_timer: Timer
+var preparation_timer: Timer = null
 var preparation_time_remaining: float = 0.0
 
 func _ready():

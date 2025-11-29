@@ -8,9 +8,9 @@ var tests_passed: int = 0
 var tests_failed: int = 0
 
 # Referencias para los tests
-var game_manager: GameManager
-var shop: Shop
-var bench: Bench
+var game_manager: GameManager = null
+var shop: Shop = null
+var bench: Bench = null
 
 func _ready():
 	print("==================================================")

@@ -15,23 +15,23 @@ const VIEWPORT_WIDTH = 1920
 const VIEWPORT_HEIGHT = 1080
 
 # Referencias a los componentes
-var grid_enemy: GridEnemy
-var grid_ally: GridAlly
-var bench: Bench
-var camera: Camera2D
+var grid_enemy: GridEnemy = null
+var grid_ally: GridAlly = null
+var bench: Bench = null
+var camera: Camera2D = null
 
 # Sistema de tiles del borde decorativo
-var border_tiles_container: Node2D
+var border_tiles_container: Node2D = null
 const BoardTileHelper = preload("res://scripts/BoardTileHelper.gd")
 
 # Sistema de drag global
 var global_dragged_unit: Unit = null
 
 # Sistema de juego
-var game_manager: GameManager
-var shop: Shop
-var enemy_ai: EnemyAI
-var combat_system: CombatSystem
+var game_manager: GameManager = null
+var shop: Shop = null
+var enemy_ai: EnemyAI = null
+var combat_system: CombatSystem = null
 
 func _ready():
 	# Obtener referencias a los componentes

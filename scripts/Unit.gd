@@ -13,8 +13,8 @@ signal energy_changed(current_energy: int, max_energy: int)
 signal energy_full(unit: Unit)  # Se emite cuando la energía llega a 100
 
 # Tipo de unidad
-var unit_type: UnitData.UnitType
-var unit_name: String
+var unit_type: UnitData.UnitType = UnitData.UnitType.MAGO
+var unit_name: String = ""
 
 # Tipo de enemigo (si es enemigo)
 var enemy_type: EnemyData.EnemyType = EnemyData.EnemyType.GOBLIN_BOW  # Valor por defecto, se cambia cuando se inicializa
@@ -44,8 +44,8 @@ var energy_bar_fill: ColorRect = null
 
 # Estado de drag
 var is_dragging: bool = false
-var original_position: Vector2
-var drag_offset: Vector2
+var original_position: Vector2 = Vector2.ZERO
+var drag_offset: Vector2 = Vector2.ZERO
 
 func _ready():
 	# El sprite se crea cuando se establece el tipo
@@ -112,8 +112,8 @@ func create_sprite():
 		var cell_size = 100.0
 		var sprite_size = max(texture.get_width(), texture.get_height())
 		var scale_factor = cell_size / sprite_size
-		# Reducir un poco más para que no toque los bordes (80% del tamaño de celda)
-		scale_factor *= 0.8
+		# Aumentar el tamaño (125% del tamaño de celda)
+		scale_factor *= 1.25
 		sprite.scale = Vector2(scale_factor, scale_factor)
 		
 		# Crear Area2D para hacer clickeable toda el área del sprite
@@ -173,8 +173,8 @@ func create_enemy_sprite(enemy_type: EnemyData.EnemyType):
 		var cell_size = 100.0
 		var sprite_size = max(texture.get_width(), texture.get_height())
 		var scale_factor = cell_size / sprite_size
-		# Reducir un poco más para que no toque los bordes (80% del tamaño de celda)
-		scale_factor *= 0.8
+		# Aumentar el tamaño (125% del tamaño de celda)
+		scale_factor *= 1.25
 		sprite.scale = Vector2(scale_factor, scale_factor)
 		
 		# Crear Area2D para hacer clickeable toda el área del sprite
@@ -192,8 +192,8 @@ func create_enemy_placeholder(enemy_type: EnemyData.EnemyType):
 	var placeholder = ColorRect.new()
 	placeholder.name = "Placeholder"
 	placeholder.color = EnemyData.get_enemy_color(enemy_type)
-	placeholder.size = Vector2(80, 80)
-	placeholder.position = Vector2(-40, -40)  # Centrado
+	placeholder.size = Vector2(160, 160)
+	placeholder.position = Vector2(-80, -80)  # Centrado
 	add_child(placeholder)
 
 func create_placeholder():
@@ -202,8 +202,8 @@ func create_placeholder():
 	var placeholder = ColorRect.new()
 	placeholder.name = "Placeholder"
 	placeholder.color = UnitData.get_unit_color(unit_type)
-	placeholder.size = Vector2(80, 80)
-	placeholder.position = Vector2(-40, -40)  # Centrado
+	placeholder.size = Vector2(160, 160)
+	placeholder.position = Vector2(-80, -80)  # Centrado
 	add_child(placeholder)
 
 func set_grid_position(col: int, row: int):
@@ -269,25 +269,69 @@ func is_alive() -> bool:
 
 # ========== Sistema de Barra de Vida ==========
 
+func get_sprite_top_position() -> float:
+	"""Calcula la posición Y de la parte superior del sprite (considerando el área como cuadrado)"""
+	if not sprite or not sprite.texture:
+		return -50.0  # Valor por defecto si no hay sprite
+	
+	# Obtener el tamaño original de la textura
+	var texture_width = sprite.texture.get_width()
+	var texture_height = sprite.texture.get_height()
+	
+	# Considerar el área como un cuadrado (usar el máximo)
+	var sprite_size = max(texture_width, texture_height)
+	
+	# Calcular el tamaño escalado del sprite
+	var scaled_size = sprite_size * sprite.scale.x
+	
+	# La parte superior del sprite está en -scaled_size/2 (sprite centrado)
+	return -scaled_size / 2.0
+
+func update_bar_positions():
+	"""Actualiza las posiciones de las barras basándose en el tamaño actual del sprite"""
+	if not sprite or not sprite.texture:
+		return
+	
+	# Calcular posición basada en el tamaño del sprite
+	var sprite_top = get_sprite_top_position()
+	var health_bar_y = sprite_top - 8.0  # 8 píxeles encima del sprite
+	var energy_bar_y = sprite_top - 16.0  # 16 píxeles encima del sprite (encima de la barra de vida)
+	
+	# Actualizar posición de barra de vida
+	if health_bar_background:
+		health_bar_background.position.y = health_bar_y
+	if health_bar_fill:
+		health_bar_fill.position.y = health_bar_y + 1
+	
+	# Actualizar posición de barra de energía
+	if energy_bar_background:
+		energy_bar_background.position.y = energy_bar_y
+	if energy_bar_fill:
+		energy_bar_fill.position.y = energy_bar_y + 1
+
 func create_health_bar():
 	"""Crea la barra de vida visual"""
 	# Crear contenedor para la barra
 	health_bar = Node2D.new()
 	health_bar.name = "HealthBar"
 	
+	# Calcular posición basada en el tamaño del sprite
+	var sprite_top = get_sprite_top_position()
+	var bar_y = sprite_top - 8.0  # 8 píxeles encima del sprite
+	
 	# Crear fondo de la barra (negro/borde)
 	health_bar_background = ColorRect.new()
 	health_bar_background.name = "HealthBarBackground"
 	health_bar_background.color = Color(0, 0, 0, 0.8)  # Negro semitransparente
 	health_bar_background.size = Vector2(60, 6)
-	health_bar_background.position = Vector2(-30, -50)  # Debajo del sprite
+	health_bar_background.position = Vector2(-30, bar_y)  # Encima del sprite
 	
 	# Crear barra de vida (verde/rojo)
 	health_bar_fill = ColorRect.new()
 	health_bar_fill.name = "HealthBarFill"
 	health_bar_fill.color = Color(0.2, 0.9, 0.2)  # Verde
 	health_bar_fill.size = Vector2(58, 4)
-	health_bar_fill.position = Vector2(-29, -49)  # Ligeramente más pequeño que el fondo
+	health_bar_fill.position = Vector2(-29, bar_y + 1)  # Ligeramente más pequeño que el fondo
 	
 	# Agregar a la barra
 	health_bar.add_child(health_bar_background)
@@ -298,6 +342,9 @@ func create_health_bar():
 	
 	# Inicializar la barra
 	update_health_bar()
+	
+	# Actualizar posición después de que el sprite esté listo
+	update_bar_positions()
 
 func update_health_bar():
 	"""Actualiza la barra de vida visual"""
@@ -370,24 +417,28 @@ func use_ability():
 # ========== Sistema de Barra de Energía ==========
 
 func create_energy_bar():
-	"""Crea la barra de energía visual (debajo de la barra de vida)"""
+	"""Crea la barra de energía visual (encima de la barra de vida)"""
 	# Crear contenedor para la barra
 	energy_bar = Node2D.new()
 	energy_bar.name = "EnergyBar"
+	
+	# Calcular posición basada en el tamaño del sprite
+	var sprite_top = get_sprite_top_position()
+	var bar_y = sprite_top - 16.0  # 16 píxeles encima del sprite (8px más arriba que la barra de vida)
 	
 	# Crear fondo de la barra (negro/borde)
 	energy_bar_background = ColorRect.new()
 	energy_bar_background.name = "EnergyBarBackground"
 	energy_bar_background.color = Color(0, 0, 0, 0.8)  # Negro semitransparente
 	energy_bar_background.size = Vector2(60, 6)
-	energy_bar_background.position = Vector2(-30, -42)  # Debajo de la barra de vida (-50 + 8)
+	energy_bar_background.position = Vector2(-30, bar_y)  # Encima del sprite
 	
 	# Crear barra de energía (azul/amarillo)
 	energy_bar_fill = ColorRect.new()
 	energy_bar_fill.name = "EnergyBarFill"
 	energy_bar_fill.color = Color(0.2, 0.6, 0.9)  # Azul
 	energy_bar_fill.size = Vector2(58, 4)
-	energy_bar_fill.position = Vector2(-29, -41)  # Ligeramente más pequeño que el fondo
+	energy_bar_fill.position = Vector2(-29, bar_y + 1)  # Ligeramente más pequeño que el fondo
 	
 	# Agregar a la barra
 	energy_bar.add_child(energy_bar_background)
@@ -398,6 +449,9 @@ func create_energy_bar():
 	
 	# Inicializar la barra
 	update_energy_bar()
+	
+	# Actualizar posición después de que el sprite esté listo
+	update_bar_positions()
 
 func update_energy_bar():
 	"""Actualiza la barra de energía visual"""

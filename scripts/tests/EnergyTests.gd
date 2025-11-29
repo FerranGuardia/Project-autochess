@@ -8,7 +8,7 @@ var tests_passed: int = 0
 var tests_failed: int = 0
 
 # Referencias para los tests
-var test_unit: Unit
+var test_unit: Unit = null
 
 func _ready():
 	print("==================================================")

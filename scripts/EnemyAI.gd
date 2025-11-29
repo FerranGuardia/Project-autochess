@@ -5,8 +5,8 @@ class_name EnemyAI
 ## Define composiciones fijas por ronda y coloca unidades enemigas
 
 # Referencias
-var grid_enemy: GridEnemy
-var board: Node  # Board, pero usamos Node para evitar problemas de tipos
+var grid_enemy: GridEnemy = null
+var board: Node = null  # Board, pero usamos Node para evitar problemas de tipos
 
 # Composiciones por ronda
 # Cada ronda tiene una lista de enemigos: [tipo, col, row]

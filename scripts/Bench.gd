@@ -8,14 +8,14 @@ const SLOT_SIZE = 100
 const SLOT_COUNT = 10
 
 # Referencia al contenedor de slots (se crean dinámicamente)
-var slots_container: Node2D
-var background: Polygon2D
+var slots_container: Node2D = null
+var background: Polygon2D = null
 
 var slots: Array[Polygon2D] = []
 
 # Sistema de unidades
 var units: Dictionary = {}  # Key: int(slot_index), Value: Unit
-var units_container: Node2D
+var units_container: Node2D = null
 
 # Sistema de drag and drop
 var dragged_unit: Unit = null

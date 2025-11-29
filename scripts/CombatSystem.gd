@@ -5,9 +5,9 @@ class_name CombatSystem
 ## Maneja movimiento y ataques de unidades durante el combate
 
 # Referencias
-var grid_ally: GridAlly
-var grid_enemy: GridEnemy
-var game_manager: GameManager
+var grid_ally: GridAlly = null
+var grid_enemy: GridEnemy = null
+var game_manager: GameManager = null
 
 # Configuración de combate
 const MOVE_SPEED: float = 200.0  # Píxeles por segundo
@@ -17,7 +17,7 @@ const ENERGY_PER_ATTACK: int = 50  # Energía ganada por ataque (para llenar en 
 
 # Estado del combate
 var is_combat_active: bool = false
-var combat_timer: Timer
+var combat_timer: Timer = null
 
 # Tracking de unidades en combate
 var ally_units: Array[Unit] = []

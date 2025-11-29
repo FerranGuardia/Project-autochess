@@ -8,9 +8,9 @@ var tests_passed: int = 0
 var tests_failed: int = 0
 
 # Referencias para los tests
-var grid_enemy: GridEnemy
-var enemy_ai: EnemyAI
-var board: Node2D  # Mock Board para EnemyAI
+var grid_enemy: GridEnemy = null
+var enemy_ai: EnemyAI = null
+var board: Node2D = null  # Mock Board para EnemyAI
 
 func _ready():
 	print("==================================================")

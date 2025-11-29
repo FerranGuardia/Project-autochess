@@ -8,10 +8,10 @@ var tests_passed: int = 0
 var tests_failed: int = 0
 
 # Referencias al entorno de prueba
-var board: Board
-var bench: Bench
-var grid_ally: GridAlly
-var grid_enemy: GridEnemy
+var board: Board = null
+var bench: Bench = null
+var grid_ally: GridAlly = null
+var grid_enemy: GridEnemy = null
 
 func _ready():
 	print("==================================================")
