@@ -39,9 +39,32 @@ static func get_ally_tile_index(grid_col: int, grid_row: int) -> int:
 static func get_border_tile_index(board_col: int, board_row: int) -> int:
 	return (board_row * BOARD_COLUMNS) + board_col + 1
 
+## Determina si un tile es de borde o de combate
+## @param tile_index: Índice del tile (1-108)
+## @return: true si es borde, false si es combate
+static func is_border_tile(tile_index: int) -> bool:
+	# Calcular posición en el tablero (0-indexed)
+	var board_row = (tile_index - 1) / BOARD_COLUMNS
+	var board_col = (tile_index - 1) % BOARD_COLUMNS
+	
+	# Es borde si está en:
+	# - Fila 0 (superior): tiles 1-9
+	# - Fila 11 (inferior): tiles 100-108
+	# - Columna 0 (izquierda): tiles 10, 19, 28, 37, 46, 55, 64, 73, 82, 91
+	# - Columna 8 (derecha): tiles 18, 27, 36, 45, 54, 63, 72, 81, 90, 99
+	if board_row == 0 or board_row == 11:
+		return true
+	if board_col == 0 or board_col == 8:
+		return true
+	return false
+
 ## Obtiene la ruta del tile del tablero completo
+## Usa solo dos sprites base: tile_board_borde.png para bordes y tile_board_combat.png para combate
 ## @param tile_index: Índice del tile (1-108)
 ## @return: Ruta del archivo del tile
 static func get_tile_path(tile_index: int) -> String:
-	return "res://assets/sprites/arena/tiles/board/tile_board_%d.png" % tile_index
+	if is_border_tile(tile_index):
+		return "res://assets/sprites/arena/tiles/board/tile_board_borde.png"
+	else:
+		return "res://assets/sprites/arena/tiles/board/tile_board_combat.png"
 

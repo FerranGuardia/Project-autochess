@@ -36,3 +36,13 @@ Thumbs.db
 *.tmp
 *.temp
 
+# Godot import files (individual)
+*.import
+
+# Diagnostic/temporary scripts
+diagnostico_git.ps1
+*diagnostico*
+
+# Files with unusual names
+ck --full
+
