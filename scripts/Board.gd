@@ -20,6 +20,10 @@ var grid_ally: GridAlly
 var bench: Bench
 var camera: Camera2D
 
+# Sistema de tiles del borde decorativo
+var border_tiles_container: Node2D
+const BoardTileHelper = preload("res://scripts/BoardTileHelper.gd")
+
 # Sistema de drag global
 var global_dragged_unit: Unit = null
 
@@ -42,6 +46,9 @@ func _ready():
 	# Configurar posiciones de los componentes basadas en la cámara
 	setup_board_layout()
 	
+	# Cargar tiles del borde decorativo
+	load_border_tiles()
+	
 	# Configurar sistema de drag and drop entre bench y grid
 	setup_drag_drop_coordination()
 	
@@ -61,7 +68,10 @@ func _ready():
 	# run_shop_tests()  # Deshabilitado - Todos los tests pasan ✅ (ver docs/guides/GUIA_TESTS_TIENDA.md)
 	
 	# Ejecutar tests del sistema de enemigos
-	run_enemy_tests()  # ACTIVADO para probar enemigos
+	# run_enemy_tests()  # Deshabilitado temporalmente
+	
+	# Ejecutar tests de tiles del tablero
+	run_board_tiles_tests()  # ACTIVADO para probar tiles
 
 func setup_drag_drop_coordination():
 	"""Coordina el drag and drop entre bench y grid"""
@@ -202,12 +212,101 @@ func setup_board_layout():
 	if grid_ally:
 		grid_ally.position = Vector2(0, 250)
 	
-	# Banquillo: Más abajo, separado del grid aliado
+	# Banquillo: Separado del borde decorativo inferior del tablero
 	# Altura del banquillo: 100px
-	# Separación: ~2 celdas (200px) entre grid aliado y banquillo
-	# Posición: Centro del banquillo en Y = +610 (2 celdas más abajo que antes)
+	# Tablero completo (con borde decorativo) termina en Y = +600px
+	# Separación: 100px entre borde decorativo inferior y banquillo
+	# Borde superior del bench: Y = +700px (600px + 100px separación)
+	# Centro del bench: Y = +750px (700px + 50px mitad del bench)
 	if bench:
-		bench.position = Vector2(0, 610)
+		bench.position = Vector2(0, 750)
+
+func load_border_tiles():
+	"""Carga los tiles del borde decorativo del tablero"""
+	# Crear contenedor para tiles del borde si no existe
+	if not border_tiles_container:
+		border_tiles_container = Node2D.new()
+		border_tiles_container.name = "BorderTilesContainer"
+		add_child(border_tiles_container)
+		border_tiles_container.z_index = -2  # Detrás de los tiles de combate
+	
+	# El tablero completo es 9 columnas × 12 filas
+	# Borde superior: fila 0, columnas 0-8 (tiles 1-9)
+	# Borde inferior: fila 11, columnas 0-8 (tiles 100-108)
+	# Borde izquierdo: columna 0, filas 1-10 (tiles 10, 19, 28, 37, 46, 55, 64, 73, 82, 91)
+	# Borde derecho: columna 8, filas 1-10 (tiles 18, 27, 36, 45, 54, 63, 72, 81, 90, 99)
+	
+	# Calcular posición del tablero completo
+	# El tablero es un rectángulo perfecto: 9 columnas × 12 filas = 108 tiles
+	# Cada tile es 100×100px, entonces el tablero es 900px × 1200px
+	# Centrado en (0, 0):
+	#   board_start_x = -450 (centro - ancho/2 = 0 - 900/2)
+	#   board_start_y = -600 (centro - alto/2 = 0 - 1200/2)
+	
+	var board_start_x = -450  # Centro - (9 columnas × 100px / 2)
+	var board_start_y = -600  # Centro - (12 filas × 100px / 2)
+	
+	var tiles_loaded = 0
+	
+	# Cargar todos los tiles del borde
+	# Fila superior (fila 0)
+	for col in range(9):
+		var tile_index = BoardTileHelper.get_border_tile_index(col, 0)
+		var tile_sprite = load_border_tile(tile_index, col, 0, board_start_x, board_start_y)
+		if tile_sprite:
+			border_tiles_container.add_child(tile_sprite)
+			tiles_loaded += 1
+	
+	# Fila inferior (fila 11)
+	for col in range(9):
+		var tile_index = BoardTileHelper.get_border_tile_index(col, 11)
+		var tile_sprite = load_border_tile(tile_index, col, 11, board_start_x, board_start_y)
+		if tile_sprite:
+			border_tiles_container.add_child(tile_sprite)
+			tiles_loaded += 1
+	
+	# Columna izquierda (columna 0, filas 1-10)
+	for row in range(1, 11):
+		var tile_index = BoardTileHelper.get_border_tile_index(0, row)
+		var tile_sprite = load_border_tile(tile_index, 0, row, board_start_x, board_start_y)
+		if tile_sprite:
+			border_tiles_container.add_child(tile_sprite)
+			tiles_loaded += 1
+	
+	# Columna derecha (columna 8, filas 1-10)
+	for row in range(1, 11):
+		var tile_index = BoardTileHelper.get_border_tile_index(8, row)
+		var tile_sprite = load_border_tile(tile_index, 8, row, board_start_x, board_start_y)
+		if tile_sprite:
+			border_tiles_container.add_child(tile_sprite)
+			tiles_loaded += 1
+	
+	if tiles_loaded > 0:
+		print("✓ Tiles del borde decorativo cargados: ", tiles_loaded)
+	else:
+		print("⚠ No se encontraron tiles del borde decorativo")
+
+func load_border_tile(tile_index: int, board_col: int, board_row: int, board_start_x: float, board_start_y: float) -> Sprite2D:
+	"""Carga un tile específico del borde decorativo"""
+	var tile_path = BoardTileHelper.get_tile_path(tile_index)
+	if ResourceLoader.exists(tile_path):
+		var texture = load(tile_path) as Texture2D
+		if texture:
+			var sprite = Sprite2D.new()
+			sprite.texture = texture
+			sprite.centered = false
+			sprite.name = "BorderTile_%d" % tile_index
+			
+			# Calcular posición del tile
+			var x = board_start_x + (board_col * CELL_SIZE)
+			var y = board_start_y + (board_row * CELL_SIZE)
+			sprite.position = Vector2(x, y)
+			sprite.z_index = -2
+			
+			# Tile cargado correctamente
+			return sprite
+	
+	return null
 
 func test_place_unit():
 	"""Función de prueba: Coloca una unidad en el grid aliado"""
@@ -245,6 +344,12 @@ func run_enemy_tests():
 	"""Ejecuta todos los tests del sistema de enemigos"""
 	var enemy_tests = EnemyTests.new()
 	add_child(enemy_tests)
+
+func run_board_tiles_tests():
+	"""Ejecuta todos los tests de tiles del tablero"""
+	const BoardTilesTests = preload("res://scripts/tests/BoardTilesTests.gd")
+	var tiles_tests = BoardTilesTests.new()
+	add_child(tiles_tests)
 
 func setup_game_systems():
 	"""Inicializa GameManager y Shop"""

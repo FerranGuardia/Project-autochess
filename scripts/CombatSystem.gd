@@ -236,14 +236,7 @@ func update_unit_grid_position(unit: Unit):
 		return
 	
 	# Determinar en qué grid está la unidad
-	var grid: Node = null
-	if not unit.is_enemy:
-		grid = grid_ally
-	else:
-		grid = grid_enemy
-	
-	if not grid or not is_instance_valid(grid):
-		return
+	# No necesitamos la variable grid, usamos directamente grid_ally o grid_enemy
 	
 	# Convertir posición mundial a posición del grid
 	var grid_pos: Vector2i
@@ -263,7 +256,7 @@ func update_unit_grid_position(unit: Unit):
 		var distance = Vector2(current_pos).distance_to(Vector2(grid_pos))
 		if distance > 0.5:  # Solo actualizar si se movió más de media celda
 			# Verificar si la celda está libre o es la misma unidad
-			var existing_unit = null
+			var existing_unit: Unit = null
 			if unit.is_enemy:
 				existing_unit = grid_enemy.get_enemy_at(grid_pos.x, grid_pos.y)
 			else:
