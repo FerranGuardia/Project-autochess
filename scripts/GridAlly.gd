@@ -377,6 +377,9 @@ func resurrect_all_units():
 		unit.current_health = unit.max_health
 		unit.update_health_bar()
 		
+		# Resetear energía a 0 (la barra se verá vacía)
+		unit.reset_energy()
+		
 		# Contar unidades que necesitaban curación
 		if was_dead:
 			resurrected_count += 1

@@ -13,6 +13,7 @@ var game_manager: GameManager
 const MOVE_SPEED: float = 200.0  # Píxeles por segundo
 const ATTACK_COOLDOWN: float = 1.0  # Segundos entre ataques
 const COMBAT_UPDATE_INTERVAL: float = 0.1  # Actualizar cada 0.1 segundos
+const ENERGY_PER_ATTACK: int = 50  # Energía ganada por ataque (para llenar en ~2 segundos)
 
 # Estado del combate
 var is_combat_active: bool = false
@@ -46,13 +47,14 @@ func start_combat():
 	# Obtener todas las unidades vivas
 	collect_combat_units()
 	
+	# Resetear energía de todas las unidades al inicio del combate
+	reset_all_units_energy()
+	
 	# Conectar señales de muerte de enemigos para otorgar loot
 	connect_unit_death_signals()
 	
 	# Iniciar el timer de combate
 	combat_timer.start()
-	
-	print("Combate iniciado - Aliados: ", ally_units.size(), " Enemigos: ", enemy_units.size())
 
 func connect_unit_death_signals():
 	"""Conecta las señales de muerte de unidades para otorgar loot"""
@@ -81,8 +83,6 @@ func stop_combat():
 	# Limpiar referencias
 	ally_units.clear()
 	enemy_units.clear()
-	
-	print("Combate detenido")
 
 func disconnect_unit_death_signals():
 	"""Desconecta las señales de muerte de unidades"""
@@ -108,6 +108,18 @@ func collect_combat_units():
 		for unit in all_enemy_units:
 			if unit is Unit and unit.is_alive():
 				enemy_units.append(unit)
+
+func reset_all_units_energy():
+	"""Resetea la energía de todas las unidades al inicio del combate"""
+	# Resetear energía de unidades aliadas
+	for unit in ally_units:
+		if is_instance_valid(unit):
+			unit.reset_energy()
+	
+	# Resetear energía de unidades enemigas
+	for unit in enemy_units:
+		if is_instance_valid(unit):
+			unit.reset_energy()
 
 func _on_combat_tick():
 	"""Se llama periódicamente durante el combate"""
@@ -297,10 +309,11 @@ func attack_target(unit: Unit, target: Unit):
 	# Aplicar daño al objetivo
 	target.take_damage(final_damage)
 	
+	# Cargar energía por ataque
+	unit.gain_energy(ENERGY_PER_ATTACK)
+	
 	# Establecer cooldown
 	attack_cooldowns[unit_id] = ATTACK_COOLDOWN
-	
-	print(unit.unit_name, " ataca a ", target.unit_name, " por ", final_damage, " daño")
 
 func get_unit_attack(unit: Unit) -> int:
 	"""Obtiene el ataque de una unidad"""

@@ -9,6 +9,8 @@ signal drag_started(unit: Unit)
 signal drag_ended(unit: Unit, drop_position: Vector2)
 signal health_changed(current_health: int, max_health: int)
 signal unit_died(unit: Unit)
+signal energy_changed(current_energy: int, max_energy: int)
+signal energy_full(unit: Unit)  # Se emite cuando la energía llega a 100
 
 # Tipo de unidad
 var unit_type: UnitData.UnitType
@@ -25,13 +27,20 @@ var grid_position: Vector2i = Vector2i(-1, -1)  # -1 significa no colocado
 var max_health: int = 100
 var current_health: int = 100
 
+# Sistema de energía
+var max_energy: int = 100
+var current_energy: int = 0
+
 # Referencias
-var sprite: Sprite2D
-var area: Area2D
-var collision_shape: CollisionShape2D
-var health_bar: Node2D  # Contenedor de la barra de vida
-var health_bar_background: ColorRect
-var health_bar_fill: ColorRect
+var sprite: Sprite2D = null
+var area: Area2D = null
+var collision_shape: CollisionShape2D = null
+var health_bar: Node2D = null  # Contenedor de la barra de vida
+var health_bar_background: ColorRect = null
+var health_bar_fill: ColorRect = null
+var energy_bar: Node2D = null  # Contenedor de la barra de energía
+var energy_bar_background: ColorRect = null
+var energy_bar_fill: ColorRect = null
 
 # Estado de drag
 var is_dragging: bool = false
@@ -57,6 +66,9 @@ func initialize(type: UnitData.UnitType):
 	
 	# Crear barra de vida
 	create_health_bar()
+	
+	# Crear barra de energía
+	create_energy_bar()
 
 func initialize_enemy(type: EnemyData.EnemyType):
 	"""Inicializa la unidad como enemigo"""
@@ -73,6 +85,9 @@ func initialize_enemy(type: EnemyData.EnemyType):
 	
 	# Crear barra de vida
 	create_health_bar()
+	
+	# Crear barra de energía
+	create_energy_bar()
 
 func create_sprite():
 	"""Crea el sprite visual de la unidad"""
@@ -307,6 +322,104 @@ func update_health_bar():
 	
 	# Ocultar la barra si está a máxima salud (opcional, puedes comentar esto si quieres que siempre se vea)
 	# health_bar.visible = health_percentage < 1.0
+
+# ========== Sistema de Energía ==========
+
+func get_energy() -> int:
+	"""Obtiene la energía actual"""
+	return current_energy
+
+func get_max_energy() -> int:
+	"""Obtiene la energía máxima"""
+	return max_energy
+
+func gain_energy(amount: int):
+	"""Aumenta la energía de la unidad"""
+	if amount <= 0:
+		return
+	
+	var old_energy = current_energy
+	current_energy = min(max_energy, current_energy + amount)
+	update_energy_bar()
+	energy_changed.emit(current_energy, max_energy)
+	
+	# Verificar si la energía está llena
+	if current_energy >= max_energy and old_energy < max_energy:
+		on_energy_full()
+
+func reset_energy():
+	"""Resetea la energía a 0 (se usa después de activar habilidad)"""
+	current_energy = 0
+	update_energy_bar()
+	energy_changed.emit(current_energy, max_energy)
+
+func on_energy_full():
+	"""Se llama cuando la energía llega a 100"""
+	# Emitir señal para que otros sistemas puedan reaccionar
+	energy_full.emit(self)
+	
+	# Activar habilidad (preparado para futuro)
+	use_ability()
+
+func use_ability():
+	"""Usa la habilidad especial de la unidad (preparado para futuro)"""
+	# TODO: Implementar sistema de habilidades
+	# Por ahora, solo reseteamos la energía
+	reset_energy()
+
+# ========== Sistema de Barra de Energía ==========
+
+func create_energy_bar():
+	"""Crea la barra de energía visual (debajo de la barra de vida)"""
+	# Crear contenedor para la barra
+	energy_bar = Node2D.new()
+	energy_bar.name = "EnergyBar"
+	
+	# Crear fondo de la barra (negro/borde)
+	energy_bar_background = ColorRect.new()
+	energy_bar_background.name = "EnergyBarBackground"
+	energy_bar_background.color = Color(0, 0, 0, 0.8)  # Negro semitransparente
+	energy_bar_background.size = Vector2(60, 6)
+	energy_bar_background.position = Vector2(-30, -42)  # Debajo de la barra de vida (-50 + 8)
+	
+	# Crear barra de energía (azul/amarillo)
+	energy_bar_fill = ColorRect.new()
+	energy_bar_fill.name = "EnergyBarFill"
+	energy_bar_fill.color = Color(0.2, 0.6, 0.9)  # Azul
+	energy_bar_fill.size = Vector2(58, 4)
+	energy_bar_fill.position = Vector2(-29, -41)  # Ligeramente más pequeño que el fondo
+	
+	# Agregar a la barra
+	energy_bar.add_child(energy_bar_background)
+	energy_bar.add_child(energy_bar_fill)
+	
+	# Agregar la barra a la unidad
+	add_child(energy_bar)
+	
+	# Inicializar la barra
+	update_energy_bar()
+
+func update_energy_bar():
+	"""Actualiza la barra de energía visual"""
+	if not energy_bar_fill:
+		return
+	
+	# Calcular el porcentaje de energía
+	var energy_percentage = float(current_energy) / float(max_energy) if max_energy > 0 else 0.0
+	energy_percentage = clamp(energy_percentage, 0.0, 1.0)
+	
+	# Actualizar el ancho de la barra
+	var bar_width = 58.0 * energy_percentage
+	energy_bar_fill.size.x = bar_width
+	
+	# Cambiar color según la energía (azul normal, amarillo cuando está casi llena)
+	if energy_percentage >= 1.0:
+		energy_bar_fill.color = Color(0.9, 0.9, 0.2)  # Amarillo cuando está llena
+	elif energy_percentage > 0.8:
+		energy_bar_fill.color = Color(0.4, 0.7, 0.9)  # Azul claro cuando está casi llena
+	else:
+		energy_bar_fill.color = Color(0.2, 0.6, 0.9)  # Azul normal
+
 
 # ========== Sistema de Drag and Drop ==========
 
