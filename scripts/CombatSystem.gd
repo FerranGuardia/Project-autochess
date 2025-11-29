@@ -206,7 +206,7 @@ func get_unit_attack_range(unit: Unit) -> float:
 	if not unit:
 		return 0.0
 	
-	var range_in_cells: int
+	var range_in_cells: int = 0
 	
 	if unit.is_enemy:
 		range_in_cells = EnemyData.get_enemy_attack_range(unit.enemy_type)
@@ -251,7 +251,7 @@ func update_unit_grid_position(unit: Unit):
 	# No necesitamos la variable grid, usamos directamente grid_ally o grid_enemy
 	
 	# Convertir posición mundial a posición del grid
-	var grid_pos: Vector2i
+	var grid_pos: Vector2i = Vector2i(-1, -1)
 	if unit.is_enemy:
 		if grid_enemy:
 			grid_pos = grid_enemy.get_grid_position(unit.global_position)
