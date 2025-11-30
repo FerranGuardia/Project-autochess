@@ -11,9 +11,16 @@ var game_manager: GameManager = null
 
 # Nodos de UI - TIENDA
 var gold_label: Label = null
+var round_label: Label = null
+var lives_label: Label = null
+var phase_label: Label = null
 var shop_panel: Panel = null
 var offers_container: VBoxContainer = null
 var refresh_button: Button = null
+
+# Nodos de UI - CONTROLES (separado de la tienda)
+var control_panel: Panel = null
+var start_combat_button: Button = null
 
 # Constantes de UI - TIENDA
 const SHOP_PANEL_WIDTH = 600
@@ -267,7 +274,7 @@ func validate_container_children(container: Container, parent_panel: Panel):
 	
 	var panel_size = parent_panel.custom_minimum_size
 	var container_pos = container.position
-	var container_size = container.custom_minimum_size
+	var _container_size = container.custom_minimum_size
 	
 	# Validar cada hijo del contenedor
 	for child in container.get_children():

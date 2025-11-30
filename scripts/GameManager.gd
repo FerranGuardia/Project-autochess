@@ -43,7 +43,6 @@ const INTERFACE_TIME: float = 30.0  # 30 segundos - Interfase entre rondas
 var preparation_timer: Timer
 var combat_timer: Timer
 var interface_timer: Timer
-
 var preparation_time_remaining: float = 0.0
 var combat_time_remaining: float = 0.0
 var interface_time_remaining: float = 0.0

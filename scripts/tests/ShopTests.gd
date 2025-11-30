@@ -8,9 +8,9 @@ var tests_passed: int = 0
 var tests_failed: int = 0
 
 # Referencias para los tests
-var game_manager: GameManager
-var shop: Shop
-var bench: Bench
+var game_manager: GameManager = null
+var shop: Shop = null
+var bench: Bench = null
 
 func _ready():
 	print("==================================================")
@@ -246,7 +246,7 @@ func test_shop_refresh():
 	"""Test: Refrescar tienda genera nuevas ofertas"""
 	print("📋 Test: Refrescar tienda")
 	
-	var offers_before = shop.get_offers()
+	var _offers_before = shop.get_offers()
 	shop.refresh_shop()
 	var offers_after = shop.get_offers()
 	
@@ -559,7 +559,7 @@ func test_shop_ui_offers_update():
 	print("📋 Test: Actualización de ofertas")
 	
 	var initial_offers = shop.get_offers()
-	var initial_count = initial_offers.size()
+	var _initial_count = initial_offers.size()
 	
 	# Refrescar tienda
 	shop.refresh_shop()

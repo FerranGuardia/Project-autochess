@@ -4,19 +4,23 @@ class_name GridAlly
 ## Grid del tablero aliado (7×5 celdas)
 ## Visualización y gestión del grid inferior
 
+const BoardTileHelperScript = preload("res://scripts/BoardTileHelper.gd")
+
 const CELL_SIZE = 100
 const COLUMNS = 7
 const ROWS = 5
 
 # Referencia al contenedor de celdas (se crean dinámicamente)
-var cells_container: Node2D
-var background: Polygon2D
+var cells_container: Node2D = null
+var tiles_container: Node2D = null  # Contenedor para los tiles individuales del grid
+var background: Node2D = null  # Fallback Polygon2D si no hay tiles
 
 var cells: Array[Polygon2D] = []
+var tiles: Array[Sprite2D] = []  # Array de sprites de tiles del grid
 
 # Sistema de unidades
 var units: Dictionary = {}  # Key: Vector2i(grid_position), Value: Unit
-var units_container: Node2D
+var units_container: Node2D = null
 
 # Límite de unidades en el grid
 const MAX_UNITS_ON_GRID: int = 10
@@ -64,21 +68,20 @@ func setup_units_container():
 		add_child(units_container)
 
 func create_grid():
-	"""Crea el grid visual de 7×5 celdas"""
-	# Crear fondo del grid
-	if not background:
-		background = Polygon2D.new()
-		background.name = "Background"
-		background.color = Color(0.2, 0.2, 1.0, 0.25)  # Azul semitransparente
-		var width = float(COLUMNS * CELL_SIZE)
-		var height = float(ROWS * CELL_SIZE)
-		background.polygon = PackedVector2Array([
-			Vector2(-width / 2.0, -height / 2.0),
-			Vector2(width / 2.0, -height / 2.0),
-			Vector2(width / 2.0, height / 2.0),
-			Vector2(-width / 2.0, height / 2.0)
-		])
-		add_child(background)
+	"""Crea el grid visual de 7×5 celdas con tiles individuales"""
+	# Crear contenedor para tiles del grid si no existe
+	if not tiles_container:
+		tiles_container = Node2D.new()
+		tiles_container.name = "TilesContainer"
+		add_child(tiles_container)
+		tiles_container.z_index = -1  # Detrás de las unidades
+	
+	# Cargar y colocar tiles individuales del grid
+	load_and_place_tiles()
+	
+	# Si no hay tiles, usar fallback
+	if tiles.is_empty():
+		create_fallback_background()
 	
 	# Crear contenedor de celdas si no existe
 	if not cells_container:
@@ -91,6 +94,80 @@ func create_grid():
 		for col in range(COLUMNS):
 			create_cell(col, row)
 
+func load_and_place_tiles():
+	"""Carga tiles individuales y los coloca uno a uno en cada celda"""
+	tiles.clear()
+	
+	# Limpiar tiles anteriores
+	for child in tiles_container.get_children():
+		child.queue_free()
+	
+	var tiles_loaded = 0
+	
+	# Colocar tiles en cada celda del grid (7×5 = 35 tiles)
+	for row in range(ROWS):
+		for col in range(COLUMNS):
+			var tile_sprite = load_tile_for_cell(col, row)
+			if tile_sprite:
+				# Calcular posición de la celda desde la esquina superior izquierda
+				# Para alinearse con los tiles del borde que usan esquina superior izquierda
+				var cell_center = get_world_position(col, row)
+				# Convertir centro de celda a esquina superior izquierda (centered = false)
+				var cell_top_left = cell_center - Vector2(CELL_SIZE / 2.0, CELL_SIZE / 2.0)
+				tile_sprite.position = to_local(cell_top_left)
+				tile_sprite.z_index = -1
+				
+				tiles_container.add_child(tile_sprite)
+				tiles.append(tile_sprite)
+				tiles_loaded += 1
+	
+	if tiles_loaded > 0:
+		print("✓ Tiles cargados para arena aliada: ", tiles_loaded, " de ", COLUMNS * ROWS)
+	else:
+		print("⚠ No se encontraron tiles para arena aliada. Usando fallback.")
+
+func load_tile_for_cell(col: int, row: int) -> Sprite2D:
+	"""Intenta cargar un tile específico para una celda del tablero completo"""
+	# Calcular índice del tile del tablero completo (1-108)
+	# Grid aliado está en las filas 6-10 del tablero completo
+	var tile_index = BoardTileHelperScript.get_ally_tile_index(col, row)
+	
+	# Intentar cargar tile específico del tablero completo
+	var tile_path = BoardTileHelperScript.get_tile_path(tile_index)
+	if ResourceLoader.exists(tile_path):
+		var texture = load(tile_path) as Texture2D
+		if texture:
+			var sprite = Sprite2D.new()
+			sprite.texture = texture
+			sprite.centered = false
+			sprite.name = "Tile_%d_%d" % [col, row]
+			# Tile cargado correctamente
+			return sprite
+	
+	# No usar fallback genérico - solo cargar el tile específico
+	# Si no existe, retornar null (se usará fallback de fondo)
+	return null
+
+func create_fallback_background():
+	"""Crea un fondo temporal si no hay tiles disponibles"""
+	if background:
+		return
+	
+	var polygon = Polygon2D.new()
+	polygon.name = "Background"
+	polygon.color = Color(0.2, 0.2, 1.0, 0.25)  # Azul semitransparente
+	var width = float(COLUMNS * CELL_SIZE)
+	var height = float(ROWS * CELL_SIZE)
+	polygon.polygon = PackedVector2Array([
+		Vector2(-width / 2.0, -height / 2.0),
+		Vector2(width / 2.0, -height / 2.0),
+		Vector2(width / 2.0, height / 2.0),
+		Vector2(-width / 2.0, height / 2.0)
+	])
+	background = polygon
+	add_child(background)
+	print("⚠ Usando fondo temporal. Crea tiles en assets/sprites/arena/tiles/board/")
+
 func create_cell(col: int, row: int):
 	"""Crea una celda individual en la posición (col, row)"""
 	var cell = Polygon2D.new()
@@ -101,8 +178,8 @@ func create_cell(col: int, row: int):
 	var y = (float(row) - float(ROWS) / 2.0 + 0.5) * float(CELL_SIZE)
 	var pos = Vector2(x - float(CELL_SIZE) / 2.0, y - float(CELL_SIZE) / 2.0)
 	
-	# Crear polígono rectangular para la celda
-	cell.color = Color(0.3, 0.3, 1.0, 0.1)  # Azul muy transparente
+	# Crear polígono rectangular para la celda (invisible, solo para lógica)
+	cell.color = Color(1.0, 1.0, 1.0, 0.0)  # Completamente invisible
 	var cell_size_float = float(CELL_SIZE)
 	cell.polygon = PackedVector2Array([
 		pos,
@@ -111,9 +188,8 @@ func create_cell(col: int, row: int):
 		pos + Vector2(0, cell_size_float)
 	])
 	
-	# Crear borde de la celda
-	var border = create_cell_border(pos, Vector2(cell_size_float, cell_size_float))
-	cells_container.add_child(border)
+	# NO crear bordes por defecto (solo aparecerán en highlight durante drag)
+	# Los bordes se crean dinámicamente en update_highlight_cell()
 	
 	cells_container.add_child(cell)
 	cells.append(cell)
@@ -300,6 +376,9 @@ func resurrect_all_units():
 		# Restaurar salud completa
 		unit.current_health = unit.max_health
 		unit.update_health_bar()
+		
+		# Resetear energía a 0 (la barra se verá vacía)
+		unit.reset_energy()
 		
 		# Contar unidades que necesitaban curación
 		if was_dead:

@@ -9,9 +9,7 @@
 
 ## 📋 Descripción
 
-Juego AutoChess simplificado desarrollado en Godot 4.5+. El proyecto está enfocado en crear un **MVP jugable y completo** en lugar de intentar replicar juegos complejos como TFT.
-
-**Filosofía:** Simple, completo y divertido > Complejo e incompleto
+Juego AutoChess desarrollado en Godot 4.5+. Este proyecto busca crear un autochess completo con sistemas de combate, gestión de recursos, unidades y mecánicas estratégicas. El juego combina elementos de estrategia, gestión de recursos y combate automático en un formato de autochess.
 
 ---
 
@@ -47,11 +45,25 @@ Juego AutoChess simplificado desarrollado en Godot 4.5+. El proyecto está enfoc
 - ✅ **Tests de integración** - Flujo completo de rondas, tienda, combate
 - ✅ **Cobertura de sistemas principales**
 
-### 📋 Próximos Pasos
-- 📋 Sistema de combinación de unidades (3 unidades = 1 estrella)
-- 📋 Sistema de sinergias (Dark Path, For the Light, Absolute Balance)
-- 📋 Mejoras visuales y feedback
-- 📋 Balanceo de unidades y enemigos
+### 📋 Próximos Pasos (Features en Desarrollo)
+
+#### 🎮 Sistemas de Gameplay
+- 📋 **Sistema de estrellas** - Mejora de unidades (3 unidades = 1 estrella)
+- 📋 **Sistema de barra de energía** - Carga de energía con ataques
+- 📋 **Sistema de habilidades** - Habilidades especiales para unidades
+- 📋 **Refinamiento de movimiento** - Mejoras en pathfinding y reglas de movimiento
+
+#### ⏱️ Sistemas de Tiempo
+- 📋 **Timers de rondas e interfaz** - Sistema de timers visual
+- 📋 **Límite de tiempo de rondas** - Límite de 1:30 minutos por ronda
+- 📋 **Sistema de enrage** - Aceleración de combate después de tiempo estimulado
+
+#### 🎨 Mejoras Visuales
+- 📋 **Animaciones básicas** - Animaciones para todas las unidades
+- 📋 **Mejoras de UI tienda** - Mejor diseño y UX de la tienda
+
+#### 🧟 Expansión de Contenido
+- 📋 **Expansión enemigos no muertos** - Nuevos enemigos para rondas 5-10 con boss final
 
 ---
 
@@ -66,59 +78,42 @@ Juego AutoChess simplificado desarrollado en Godot 4.5+. El proyecto está enfoc
 
 ## 📚 Documentación
 
-### 🎯 Para Planificar tu MVP (Empieza Aquí)
+### 📖 Guía de Desarrollo
 
-**Ubicación:** `docs/mvp/`
+**`docs/GUIA_DESARROLLO.md`** ⭐ **EMPIEZA AQUÍ**
+- Guía completa unificada de desarrollo
+- Estructura del proyecto
+- Flujo de trabajo
+- Checklist diario
+- Testing (unitarios e integración)
+- Mejores prácticas y herramientas
 
-1. **`RESUMEN_PLANIFICACION.md`** ⭐ **LEE ESTO PRIMERO**
-   - Resumen ejecutivo
-   - Qué hacer ahora
-   - Checklist de preparación
+### 🌿 Branches y Features
 
-2. **`PLANIFICACION_MVP.md`**
-   - Análisis de estado actual
-   - Definición de MVP
-   - Priorización de tareas
-
-3. **`CUESTIONARIO_MVP.md`** ⭐ **RESPONDE ESTO**
-   - Preguntas para definir tu MVP
-   - Te ayuda a tomar decisiones
-
-4. **`MI_ROADMAP_PERSONALIZADO.md`** ⭐ **LLENA ESTO**
-   - Template de roadmap personalizado
-   - Tracking de progreso
-
-5. **`MVP_REALISTA.md`**
-   - Por qué simplificar
-   - Comparación TFT vs MVP
-
-6. **`PLAN_SIMPLIFICACION.md`**
-   - Plan práctico de simplificación
+**`docs/BRANCHES_PRIORIDADES.md`**
+- Lista completa de branches creados
+- Prioridades y dependencias
+- Estado de cada feature
+- Orden de trabajo sugerido
 
 ### 🔧 Documentación Técnica
 
 **Ubicación:** `docs/technical/`
 
-- `ESPECIFICACIONES_TABLERO.md` - Especificaciones del tablero
-- `RESUMEN_CREACION_TABLERO.md` - Resumen de creación del tablero
-- `GUIA_CREAR_TABLERO.md` - Guía rápida del tablero
-- `DESIGN_DECISIONS.md` - Decisiones de diseño
-- `PLAN_ESPACIO_UI.md` - Plan de espacio para UI
-- `SISTEMA_COMBATE.md` - Documentación del sistema de combate
+- `SISTEMA_COMBATE.md` - Sistema de combate
 - `SISTEMA_ORO_TIENDA.md` - Sistema de economía y tienda
 - `SISTEMA_FASES_RONDAS.md` - Sistema de rondas y fases
 - `SISTEMA_RESURRECCION.md` - Sistema de resurrección y curación
 - `SISTEMA_BARRAS_VIDA.md` - Sistema de barras de vida
+- `ESPECIFICACIONES_TABLERO.md` - Especificaciones del tablero
+- `GUIA_CREAR_TABLERO.md` - Guía de creación del tablero
+- `DESIGN_DECISIONS.md` - Decisiones de diseño
+- `PLAN_ESPACIO_UI.md` - Plan de espacio para UI
+- `LAYOUT_TIENDA.md` - Layout de la tienda
 
-### 📖 Guías de Desarrollo
+### 🎨 Recursos
 
-**Ubicación:** `docs/guides/`
-
-- `GUIA_TESTS.md` - Guía de tests unitarios
-- `GUIA_TESTS_INTEGRACION.md` - Guía de tests de integración
-- `GUIA_DESARROLLADOR_VIDEOJUEGOS.md` - Guía general de desarrollo
-- `FLUJO_TRABAJO_PRACTICO.md` - Flujo de trabajo práctico
-- `CHECKLIST_DESARROLLADOR.md` - Checklist rápido
+- `docs/PROMPTS_ENEMIGOS_GOBLIN.md` - Prompts para crear sprites de enemigos
 
 ---
 
@@ -128,7 +123,8 @@ Juego AutoChess simplificado desarrollado en Godot 4.5+. El proyecto está enfoc
 autochess/
 ├── assets/
 │   └── sprites/
-│       └── units/          # Sprites de unidades (idle animations)
+│       ├── units/          # Sprites de unidades
+│       └── arena/          # Sprites de tablero y tiles
 ├── docs/                   # Documentación organizada
 │   ├── mvp/               # Planificación MVP
 │   ├── technical/         # Documentación técnica
@@ -220,14 +216,17 @@ autochess/
 
 ---
 
-## 💡 Filosofía del Proyecto
+## 🔧 Tecnologías y Herramientas
 
-**No intentamos hacer TFT.** Intentamos hacer **TU autochess**:
-- Simple y completo
-- Jugable y divertido
-- Aprendizaje en el proceso
-- Algo de lo que estar orgulloso
+- **Motor:** Godot 4.5+
+- **Lenguaje:** GDScript
+- **Control de Versiones:** Git con Gitflow
+- **Testing:** Tests unitarios e integración incluidos
+
+## 📈 Progreso del Proyecto
+
+El proyecto está en desarrollo activo con sistemas core completados y nuevas features planificadas. Para ver el estado detallado de cada feature y sus prioridades, consulta `docs/BRANCHES_PRIORIDADES.md`.
 
 ---
 
-**¡Buena suerte con tu desarrollo! 🎮**
+**¡Disfruta desarrollando tu autochess! 🎮**

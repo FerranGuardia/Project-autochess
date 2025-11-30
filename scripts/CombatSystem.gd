@@ -5,18 +5,19 @@ class_name CombatSystem
 ## Maneja movimiento y ataques de unidades durante el combate
 
 # Referencias
-var grid_ally: GridAlly
-var grid_enemy: GridEnemy
-var game_manager: GameManager
+var grid_ally: GridAlly = null
+var grid_enemy: GridEnemy = null
+var game_manager: GameManager = null
 
 # Configuración de combate
 const MOVE_SPEED: float = 200.0  # Píxeles por segundo
 const ATTACK_COOLDOWN: float = 1.0  # Segundos entre ataques
 const COMBAT_UPDATE_INTERVAL: float = 0.1  # Actualizar cada 0.1 segundos
+const ENERGY_PER_ATTACK: int = 50  # Energía ganada por ataque (para llenar en ~2 segundos)
 
 # Estado del combate
 var is_combat_active: bool = false
-var combat_timer: Timer
+var combat_timer: Timer = null
 
 # Tracking de unidades en combate
 var ally_units: Array[Unit] = []
@@ -46,13 +47,14 @@ func start_combat():
 	# Obtener todas las unidades vivas
 	collect_combat_units()
 	
+	# Resetear energía de todas las unidades al inicio del combate
+	reset_all_units_energy()
+	
 	# Conectar señales de muerte de enemigos para otorgar loot
 	connect_unit_death_signals()
 	
 	# Iniciar el timer de combate
 	combat_timer.start()
-	
-	print("Combate iniciado - Aliados: ", ally_units.size(), " Enemigos: ", enemy_units.size())
 
 func connect_unit_death_signals():
 	"""Conecta las señales de muerte de unidades para otorgar loot"""
@@ -81,8 +83,6 @@ func stop_combat():
 	# Limpiar referencias
 	ally_units.clear()
 	enemy_units.clear()
-	
-	print("Combate detenido")
 
 func disconnect_unit_death_signals():
 	"""Desconecta las señales de muerte de unidades"""
@@ -108,6 +108,18 @@ func collect_combat_units():
 		for unit in all_enemy_units:
 			if unit is Unit and unit.is_alive():
 				enemy_units.append(unit)
+
+func reset_all_units_energy():
+	"""Resetea la energía de todas las unidades al inicio del combate"""
+	# Resetear energía de unidades aliadas
+	for unit in ally_units:
+		if is_instance_valid(unit):
+			unit.reset_energy()
+	
+	# Resetear energía de unidades enemigas
+	for unit in enemy_units:
+		if is_instance_valid(unit):
+			unit.reset_energy()
 
 func _on_combat_tick():
 	"""Se llama periódicamente durante el combate"""
@@ -194,7 +206,7 @@ func get_unit_attack_range(unit: Unit) -> float:
 	if not unit:
 		return 0.0
 	
-	var range_in_cells: int
+	var range_in_cells: int = 0
 	
 	if unit.is_enemy:
 		range_in_cells = EnemyData.get_enemy_attack_range(unit.enemy_type)
@@ -236,47 +248,40 @@ func update_unit_grid_position(unit: Unit):
 		return
 	
 	# Determinar en qué grid está la unidad
-	var grid: Node = null
-	if not unit.is_enemy:
-		grid = grid_ally
-	else:
-		grid = grid_enemy
-	
-	if not grid or not is_instance_valid(grid):
-		return
+	# No necesitamos la variable grid, usamos directamente grid_ally o grid_enemy
 	
 	# Convertir posición mundial a posición del grid
-	var grid_pos: Vector2i
+	var _grid_pos: Vector2i = Vector2i(-1, -1)
 	if unit.is_enemy:
 		if grid_enemy:
-			grid_pos = grid_enemy.get_grid_position(unit.global_position)
+			_grid_pos = grid_enemy.get_grid_position(unit.global_position)
 		else:
 			return
 	else:
 		if grid_ally:
-			grid_pos = grid_ally.get_grid_position(unit.global_position)
+			_grid_pos = grid_ally.get_grid_position(unit.global_position)
 		else:
 			return
 	
 	# Solo actualizar si la posición cambió significativamente (más de media celda)
-	if grid_pos.x >= 0 and grid_pos.y >= 0:
-		var distance = Vector2(current_pos).distance_to(Vector2(grid_pos))
+	if _grid_pos.x >= 0 and _grid_pos.y >= 0:
+		var distance = Vector2(current_pos).distance_to(Vector2(_grid_pos))
 		if distance > 0.5:  # Solo actualizar si se movió más de media celda
 			# Verificar si la celda está libre o es la misma unidad
-			var existing_unit = null
+			var existing_unit: Unit = null
 			if unit.is_enemy:
-				existing_unit = grid_enemy.get_enemy_at(grid_pos.x, grid_pos.y)
+				existing_unit = grid_enemy.get_enemy_at(_grid_pos.x, _grid_pos.y)
 			else:
-				existing_unit = grid_ally.get_unit_at(grid_pos.x, grid_pos.y)
+				existing_unit = grid_ally.get_unit_at(_grid_pos.x, _grid_pos.y)
 			
 			if not existing_unit or existing_unit == unit:
 				# Mover la unidad en el grid
 				if unit.is_enemy:
 					grid_enemy.remove_enemy(unit, false)
-					grid_enemy.place_enemy(unit, grid_pos.x, grid_pos.y)
+					grid_enemy.place_enemy(unit, _grid_pos.x, _grid_pos.y)
 				else:
 					grid_ally.remove_unit(unit)
-					grid_ally.place_unit(unit, grid_pos.x, grid_pos.y)
+					grid_ally.place_unit(unit, _grid_pos.x, _grid_pos.y)
 
 # Tracking de cooldowns de ataque
 var attack_cooldowns: Dictionary = {}  # Key: Unit, Value: float (tiempo restante)
@@ -304,10 +309,11 @@ func attack_target(unit: Unit, target: Unit):
 	# Aplicar daño al objetivo
 	target.take_damage(final_damage)
 	
+	# Cargar energía por ataque
+	unit.gain_energy(ENERGY_PER_ATTACK)
+	
 	# Establecer cooldown
 	attack_cooldowns[unit_id] = ATTACK_COOLDOWN
-	
-	print(unit.unit_name, " ataca a ", target.unit_name, " por ", final_damage, " daño")
 
 func get_unit_attack(unit: Unit) -> int:
 	"""Obtiene el ataque de una unidad"""
@@ -359,7 +365,7 @@ func check_combat_end() -> bool:
 	
 	return false
 
-func end_combat(victory: bool):
+func end_combat(won: bool):
 	"""Termina el combate"""
 	stop_combat()
 	
@@ -368,5 +374,5 @@ func end_combat(victory: bool):
 	
 	# Notificar al GameManager
 	if game_manager:
-		game_manager.end_combat(victory)
+		game_manager.end_combat(won)
 

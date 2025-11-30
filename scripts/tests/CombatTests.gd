@@ -8,10 +8,10 @@ var tests_passed: int = 0
 var tests_failed: int = 0
 
 # Referencias para los tests
-var combat_system: CombatSystem
-var grid_ally: GridAlly
-var grid_enemy: GridEnemy
-var game_manager: GameManager
+var combat_system: CombatSystem = null
+var grid_ally: GridAlly = null
+var grid_enemy: GridEnemy = null
+var game_manager: GameManager = null
 
 func _ready():
 	print("==================================================")

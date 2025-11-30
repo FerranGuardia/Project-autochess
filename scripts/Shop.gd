@@ -24,8 +24,8 @@ const UNIT_COSTS = {
 var current_offers: Array[UnitData.UnitType] = []
 
 # Referencias
-var game_manager: GameManager
-var bench: Bench
+var game_manager: GameManager = null
+var bench: Bench = null
 
 func _ready():
 	# No generar ofertas aquí - se hará después de initialize()
