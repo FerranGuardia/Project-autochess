@@ -150,7 +150,7 @@ func create_clickable_area(texture: Texture2D, scale_factor: float):
 	
 	add_child(area)
 
-func create_enemy_sprite(enemy_type: EnemyData.EnemyType):
+func create_enemy_sprite(type: EnemyData.EnemyType):
 	"""Crea el sprite visual de un enemigo"""
 	if sprite:
 		sprite.queue_free()
@@ -161,7 +161,7 @@ func create_enemy_sprite(enemy_type: EnemyData.EnemyType):
 	sprite.name = "Sprite"
 	
 	# Cargar la textura del sprite
-	var sprite_path = EnemyData.get_enemy_sprite_path(enemy_type)
+	var sprite_path = EnemyData.get_enemy_sprite_path(type)
 	var texture = load(sprite_path)
 	
 	if texture:
@@ -182,16 +182,16 @@ func create_enemy_sprite(enemy_type: EnemyData.EnemyType):
 	else:
 		# Si no se encuentra el sprite, crear un placeholder
 		print("Warning: No se encontró el sprite en: ", sprite_path)
-		create_enemy_placeholder(enemy_type)
+		create_enemy_placeholder(type)
 	
 	add_child(sprite)
 
-func create_enemy_placeholder(enemy_type: EnemyData.EnemyType):
+func create_enemy_placeholder(type: EnemyData.EnemyType):
 	"""Crea un placeholder visual si no hay sprite de enemigo"""
 	# Crear un ColorRect como fallback temporal
 	var placeholder = ColorRect.new()
 	placeholder.name = "Placeholder"
-	placeholder.color = EnemyData.get_enemy_color(enemy_type)
+	placeholder.color = EnemyData.get_enemy_color(type)
 	placeholder.size = Vector2(160, 160)
 	placeholder.position = Vector2(-80, -80)  # Centrado
 	add_child(placeholder)
@@ -487,10 +487,10 @@ func _on_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int):
 		return
 	
 	if event is InputEventMouseButton:
-		var mouse_event = event as InputEventMouseButton
+		var _mouse_event = event as InputEventMouseButton
 		
-		if mouse_event.button_index == MOUSE_BUTTON_LEFT:
-			if mouse_event.pressed:
+		if _mouse_event.button_index == MOUSE_BUTTON_LEFT:
+			if _mouse_event.pressed:
 				# Iniciar drag
 				start_drag(get_global_mouse_position())
 			else:
@@ -531,12 +531,12 @@ func _input(event: InputEvent):
 	"""Maneja el input global durante el drag"""
 	if is_dragging:
 		if event is InputEventMouseMotion:
-			var mouse_event = event as InputEventMouseMotion
+			var _mouse_event = event as InputEventMouseMotion
 			# Mover la unidad siguiendo el mouse
 			global_position = get_global_mouse_position() + drag_offset
 		elif event is InputEventMouseButton:
-			var mouse_event = event as InputEventMouseButton
-			if mouse_event.button_index == MOUSE_BUTTON_LEFT and not mouse_event.pressed:
+			var _mouse_event = event as InputEventMouseButton
+			if _mouse_event.button_index == MOUSE_BUTTON_LEFT and not _mouse_event.pressed:
 				# Si se suelta el botón durante el drag, terminar el drag
 				if is_dragging:
 					end_drag(get_global_mouse_position())

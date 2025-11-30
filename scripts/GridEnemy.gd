@@ -4,7 +4,7 @@ class_name GridEnemy
 ## Grid del tablero enemigo (7×5 celdas)
 ## Visualización y gestión del grid superior
 
-const BoardTileHelper = preload("res://scripts/BoardTileHelper.gd")
+const BoardTileHelperScript = preload("res://scripts/BoardTileHelper.gd")
 
 const CELL_SIZE = 100
 const COLUMNS = 7
@@ -100,10 +100,10 @@ func load_tile_for_cell(col: int, row: int) -> Sprite2D:
 	"""Intenta cargar un tile específico para una celda del tablero completo"""
 	# Calcular índice del tile del tablero completo (1-108)
 	# Grid enemigo está en las filas 1-5 del tablero completo
-	var tile_index = BoardTileHelper.get_enemy_tile_index(col, row)
+	var tile_index = BoardTileHelperScript.get_enemy_tile_index(col, row)
 	
 	# Intentar cargar tile específico del tablero completo
-	var tile_path = BoardTileHelper.get_tile_path(tile_index)
+	var tile_path = BoardTileHelperScript.get_tile_path(tile_index)
 	if ResourceLoader.exists(tile_path):
 		var texture = load(tile_path) as Texture2D
 		if texture:

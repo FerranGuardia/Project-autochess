@@ -163,8 +163,8 @@ func find_free_position() -> Vector2i:
 		return Vector2i(-1, -1)
 	
 	# Buscar desde el centro hacia afuera
-	var center_col = int(grid_enemy.COLUMNS / 2.0)
-	var center_row = int(grid_enemy.ROWS / 2.0)
+	var center_col = int(float(grid_enemy.COLUMNS) / 2.0)
+	var center_row = int(float(grid_enemy.ROWS) / 2.0)
 	
 	# Buscar en espiral desde el centro
 	for radius in range(max(grid_enemy.COLUMNS, grid_enemy.ROWS)):
