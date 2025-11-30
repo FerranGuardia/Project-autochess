@@ -24,8 +24,8 @@ var start_combat_button: Button = null
 
 # Constantes de UI - TIENDA
 const SHOP_PANEL_WIDTH = 600
-# Altura: título + oro + ofertas + botón = ~250px
-const SHOP_PANEL_HEIGHT = 250
+# Altura: título + oro + ofertas + botón = ~250px + 400px adicionales = 650px
+const SHOP_PANEL_HEIGHT = 650
 const SHOP_POSITION_X = 50  # Esquina superior izquierda
 const SHOP_POSITION_Y = 50
 

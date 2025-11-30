@@ -211,8 +211,9 @@ func update_phase_display():
 			if start_combat_button:
 				start_combat_button.disabled = false
 		elif game_manager.is_interface_phase():
+			# Habilitar el botón durante la interfase para que el jugador pueda iniciar combate antes del timer
 			if start_combat_button:
-				start_combat_button.disabled = true
+				start_combat_button.disabled = false
 		else:  # Combate
 			if start_combat_button:
 				start_combat_button.disabled = true
@@ -260,4 +261,9 @@ func _on_start_combat_pressed():
 	if game_manager.is_preparation_phase():
 		game_manager.start_combat()
 		print("Combate iniciado desde CombatPanel")
+	elif game_manager.is_interface_phase():
+		# Durante la interfase, incrementar la ronda y luego iniciar el combate
+		game_manager.start_new_round()
+		game_manager.start_combat()
+		print("Combate iniciado desde CombatPanel durante interfase")
 
