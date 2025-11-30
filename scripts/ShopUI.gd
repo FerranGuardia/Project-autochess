@@ -11,22 +11,14 @@ var game_manager: GameManager = null
 
 # Nodos de UI - TIENDA
 var gold_label: Label = null
-var round_label: Label = null
-var lives_label: Label = null
-var phase_label: Label = null
 var shop_panel: Panel = null
 var offers_container: VBoxContainer = null
 var refresh_button: Button = null
 
-# Nodos de UI - CONTROLES (separado de la tienda)
-var control_panel: Panel = null
-var start_combat_button: Button = null
-
 # Constantes de UI - TIENDA
 const SHOP_PANEL_WIDTH = 600
-# Altura: 300px base + 200px adicionales = 500px total
-# El panel se extiende hacia abajo manteniendo la posición superior
-const SHOP_PANEL_HEIGHT = 500
+# Altura: título + oro + ofertas + botón = ~250px + 400px adicionales = 650px
+const SHOP_PANEL_HEIGHT = 650
 const SHOP_POSITION_X = 50  # Esquina superior izquierda
 const SHOP_POSITION_Y = 50
 
@@ -39,7 +31,6 @@ const PANEL_MARGIN_BETWEEN = 5  # Margen entre elementos
 
 # Dimensiones de elementos
 const TITLE_HEIGHT = 30
-const INFO_HEIGHT = 100
 const OFFER_ROW_HEIGHT = 20  # Altura de cada fila de oferta
 const MAX_OFFERS = 5  # Máximo número de ofertas
 const OFFERS_HEIGHT = MAX_OFFERS * OFFER_ROW_HEIGHT  # 5 ofertas × 20px = 100px
@@ -48,11 +39,6 @@ const REFRESH_BUTTON_HEIGHT = 30
 # Ancho disponible dentro del panel (respetando márgenes)
 var available_width: int = SHOP_PANEL_WIDTH - PANEL_MARGIN_LEFT - PANEL_MARGIN_RIGHT
 
-# Constantes de UI - CONTROLES
-const CONTROL_PANEL_WIDTH = 320
-const CONTROL_PANEL_HEIGHT = 60
-const CONTROL_POSITION_X = 900  # Esquina superior derecha (1280 - 320 - 60 de margen)
-const CONTROL_POSITION_Y = 50
 
 func _ready():
 	# Esperar un frame para que Board esté listo
@@ -63,6 +49,9 @@ func _ready():
 		# Si las referencias ya están, conectar señales antes de crear UI
 		connect_signals()
 		create_ui()
+		# Actualizar UI con valores iniciales después de crear
+		update_gold_display()
+		update_offers_display()
 
 func connect_signals():
 	"""Conecta todas las señales necesarias"""
@@ -70,15 +59,13 @@ func connect_signals():
 		if not game_manager.gold_changed.is_connected(_on_gold_changed):
 			game_manager.gold_changed.connect(_on_gold_changed)
 			print("ShopUI: Señal gold_changed conectada")
-		if not game_manager.round_changed.is_connected(_on_round_changed):
-			game_manager.round_changed.connect(_on_round_changed)
-		if not game_manager.lives_changed.is_connected(_on_lives_changed):
-			game_manager.lives_changed.connect(_on_lives_changed)
-		if not game_manager.phase_changed.is_connected(_on_phase_changed):
-			game_manager.phase_changed.connect(_on_phase_changed)
 	if shop:
 		if not shop.unit_purchased.is_connected(_on_unit_purchased):
 			shop.unit_purchased.connect(_on_unit_purchased)
+	
+	# Actualizar UI inicial
+	update_gold_display()
+	update_offers_display()
 
 func setup_ui():
 	"""Configura la UI de la tienda"""
@@ -106,11 +93,8 @@ func setup_ui():
 
 func create_ui():
 	"""Crea los elementos de la UI"""
-	# ========== PANEL DE TIENDA (ÁREA SEPARADA) ==========
+	# ========== PANEL DE TIENDA ==========
 	create_shop_panel()
-	
-	# ========== PANEL DE CONTROLES (ÁREA SEPARADA) ==========
-	create_control_panel()
 
 func create_shop_panel():
 	"""Crea el panel de la tienda usando contenedores para evitar overlaps"""
@@ -152,41 +136,12 @@ func create_shop_panel():
 	separator1.custom_minimum_size = Vector2(0, PANEL_MARGIN_BETWEEN)
 	main_vbox.add_child(separator1)
 	
-	# ========== INFORMACIÓN DEL JUEGO ==========
-	var info_container = VBoxContainer.new()
-	info_container.name = "InfoContainer"
-	info_container.custom_minimum_size = Vector2(0, INFO_HEIGHT)
-	info_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	main_vbox.add_child(info_container)
-	
-	# Label de oro
+	# ========== ORO ==========
 	gold_label = Label.new()
 	gold_label.name = "GoldLabel"
 	gold_label.text = "Oro: 10"
 	gold_label.add_theme_font_size_override("font_size", 18)
-	info_container.add_child(gold_label)
-	
-	# Label de ronda
-	round_label = Label.new()
-	round_label.name = "RoundLabel"
-	round_label.text = "Ronda: 1"
-	round_label.add_theme_font_size_override("font_size", 18)
-	info_container.add_child(round_label)
-	
-	# Label de vidas
-	lives_label = Label.new()
-	lives_label.name = "LivesLabel"
-	lives_label.text = "Vidas: 5"
-	lives_label.add_theme_font_size_override("font_size", 18)
-	info_container.add_child(lives_label)
-	
-	# Label de fase
-	phase_label = Label.new()
-	phase_label.name = "PhaseLabel"
-	phase_label.text = "Fase: Preparación"
-	phase_label.add_theme_font_size_override("font_size", 16)
-	phase_label.modulate = Color(0.8, 0.8, 1.0)  # Azul claro
-	info_container.add_child(phase_label)
+	main_vbox.add_child(gold_label)
 	
 	# Separador visual (espacio)
 	var separator2 = Control.new()
@@ -341,45 +296,6 @@ func validate_container_children(container: Container, parent_panel: Panel):
 				child_size.x = max_child_width
 				control.custom_minimum_size = child_size
 
-func create_control_panel():
-	"""Crea el panel de controles (área completamente separada de la tienda)"""
-	control_panel = Panel.new()
-	control_panel.name = "ControlPanel"
-	control_panel.custom_minimum_size = Vector2(CONTROL_PANEL_WIDTH, CONTROL_PANEL_HEIGHT)
-	# Posición: Esquina superior derecha (completamente separada de la tienda)
-	control_panel.position = Vector2(CONTROL_POSITION_X, CONTROL_POSITION_Y)
-	add_child(control_panel)
-	
-	# Título del panel de control
-	var control_title = Label.new()
-	control_title.text = "CONTROLES"
-	control_title.add_theme_font_size_override("font_size", 18)
-	control_title.position = Vector2(10, 5)
-	control_panel.add_child(control_title)
-	
-	# Botón de iniciar combate (ÚNICO botón en el panel de controles)
-	start_combat_button = Button.new()
-	start_combat_button.text = "Iniciar Combate"
-	start_combat_button.custom_minimum_size = Vector2(150, 35)
-	start_combat_button.position = Vector2(10, 25)
-	start_combat_button.modulate = Color(0.8, 1.0, 0.8)  # Verde claro
-	start_combat_button.pressed.connect(_on_start_combat_pressed)
-	control_panel.add_child(start_combat_button)
-	
-	# Actualizar UI inicial
-	update_gold_display()
-	update_round_display()
-	update_lives_display()
-	update_phase_display()
-	update_offers_display()  # Actualizar ofertas al final para que tenga el oro actualizado
-	
-	# VALIDAR que todos los elementos estén dentro del panel
-	ensure_all_elements_inside_panel()
-
-func update_gold_display():
-	"""Actualiza el display de oro"""
-	if gold_label and game_manager:
-		gold_label.text = "Oro: %d" % game_manager.get_gold()
 
 func update_offers_display():
 	"""Actualiza el display de ofertas"""
@@ -458,7 +374,6 @@ func _on_buy_pressed(offer_index: int):
 	var success = board.purchase_unit_from_shop(offer_index)
 	if success:
 		# Actualizar UI
-		update_gold_display()
 		update_offers_display()
 		print("Compra exitosa!")
 	else:
@@ -474,6 +389,11 @@ func _on_refresh_pressed():
 	update_offers_display()
 	print("Tienda refrescada")
 
+func update_gold_display():
+	"""Actualiza el display de oro"""
+	if gold_label and game_manager:
+		gold_label.text = "Oro: %d" % game_manager.get_gold()
+
 func _on_gold_changed(_new_amount: int):
 	"""Se llama cuando cambia el oro"""
 	print("ShopUI: Oro cambiado a ", _new_amount)
@@ -484,51 +404,3 @@ func _on_gold_changed(_new_amount: int):
 func _on_unit_purchased(unit_type: UnitData.UnitType, cost: int):
 	"""Se llama cuando se compra una unidad"""
 	print("Unidad comprada: ", UnitData.get_unit_name(unit_type), " por ", cost, " oro")
-
-func update_round_display():
-	"""Actualiza el display de ronda"""
-	if round_label and game_manager:
-		round_label.text = "Ronda: %d" % game_manager.get_current_round()
-
-func update_lives_display():
-	"""Actualiza el display de vidas"""
-	if lives_label and game_manager:
-		lives_label.text = "Vidas: %d" % game_manager.get_lives()
-
-func update_phase_display():
-	"""Actualiza el display de fase"""
-	if phase_label and game_manager:
-		if game_manager.is_preparation_phase():
-			phase_label.text = "Fase: Preparación"
-			phase_label.modulate = Color(0.8, 0.8, 1.0)  # Azul claro
-			if start_combat_button:
-				start_combat_button.disabled = false
-		else:
-			phase_label.text = "Fase: Combate"
-			phase_label.modulate = Color(1.0, 0.8, 0.8)  # Rojo claro
-			if start_combat_button:
-				start_combat_button.disabled = true
-
-func _on_round_changed(_new_round: int):
-	"""Se llama cuando cambia la ronda"""
-	update_round_display()
-
-func _on_lives_changed(_new_lives: int):
-	"""Se llama cuando cambian las vidas"""
-	update_lives_display()
-
-func _on_phase_changed(_new_phase: int):
-	"""Se llama cuando cambia la fase"""
-	update_phase_display()
-
-func _on_start_combat_pressed():
-	"""Se llama cuando se presiona el botón de iniciar combate"""
-	if not game_manager:
-		return
-	
-	if game_manager.is_preparation_phase():
-		game_manager.start_combat()
-		print("Combate iniciado desde UI")
-func _on_panel_resized():
-	"""Se llama cuando el panel cambia de tamaño - revalidar todo"""
-	ensure_all_elements_inside_panel()
