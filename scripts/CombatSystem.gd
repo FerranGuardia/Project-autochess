@@ -206,7 +206,7 @@ func get_unit_attack_range(unit: Unit) -> float:
 	if not unit:
 		return 0.0
 	
-	var range_in_cells: int
+	var range_in_cells: int = 0
 	
 	if unit.is_enemy:
 		range_in_cells = EnemyData.get_enemy_attack_range(unit.enemy_type)
