@@ -30,11 +30,26 @@ var enemy_ai: EnemyAI
 var combat_system: CombatSystem
 
 func _ready():
-	# Obtener referencias a los componentes
-	grid_enemy = $GridEnemy
-	grid_ally = $GridAlly
-	bench = $Bench
-	camera = $Camera2D
+	# Obtener referencias a los componentes (usar get_node_or_null para evitar errores)
+	grid_enemy = get_node_or_null("GridEnemy") as GridEnemy
+	grid_ally = get_node_or_null("GridAlly") as GridAlly
+	bench = get_node_or_null("Bench") as Bench
+	camera = get_node_or_null("Camera2D") as Camera2D
+	
+	# Verificar que los nodos existen antes de continuar
+	if not grid_enemy:
+		push_error("Board: GridEnemy no encontrado. Asegúrate de que la escena Board.tscn esté cargada correctamente.")
+	if not grid_ally:
+		push_error("Board: GridAlly no encontrado. Asegúrate de que la escena Board.tscn esté cargada correctamente.")
+	if not bench:
+		push_error("Board: Bench no encontrado. Asegúrate de que la escena Board.tscn esté cargada correctamente.")
+	if not camera:
+		push_error("Board: Camera2D no encontrado. Asegúrate de que la escena Board.tscn esté cargada correctamente.")
+	
+	# Si faltan nodos críticos, no continuar
+	if not grid_enemy or not grid_ally or not bench or not camera:
+		print("Board: Error crítico - faltan nodos. Algunas funcionalidades pueden no funcionar.")
+		return
 	
 	# Configurar cámara en el centro del viewport
 	setup_camera()
@@ -61,7 +76,10 @@ func _ready():
 	# run_shop_tests()  # Deshabilitado - Todos los tests pasan ✅ (ver docs/guides/GUIA_TESTS_TIENDA.md)
 	
 	# Ejecutar tests del sistema de enemigos
-	run_enemy_tests()  # ACTIVADO para probar enemigos
+	# run_enemy_tests()  # Deshabilitado
+	
+	# Ejecutar tests del panel de combate
+	# run_combat_panel_tests()  # DESHABILITADO - Ejecutar manualmente cuando sea necesario
 
 func setup_drag_drop_coordination():
 	"""Coordina el drag and drop entre bench y grid"""
@@ -246,6 +264,11 @@ func run_enemy_tests():
 	var enemy_tests = EnemyTests.new()
 	add_child(enemy_tests)
 
+func run_combat_panel_tests():
+	"""Ejecuta todos los tests del panel de combate"""
+	var combat_panel_tests = CombatPanelTests.new()
+	add_child(combat_panel_tests)
+
 func setup_game_systems():
 	"""Inicializa GameManager y Shop"""
 	# Crear GameManager
@@ -291,8 +314,28 @@ func setup_game_systems():
 	# Crear UI de tienda
 	create_shop_ui()
 	
+	# Crear UI de panel de combate
+	create_combat_panel()
+	
+	# Esperar un frame para que las UIs se inicialicen
+	await get_tree().process_frame
+	
+	# Emitir señales iniciales para actualizar las UIs
+	game_manager.gold_changed.emit(game_manager.get_gold())
+	game_manager.round_changed.emit(game_manager.get_current_round())
+	game_manager.lives_changed.emit(game_manager.get_lives())
+	game_manager.phase_changed.emit(game_manager.get_current_phase())
+	if game_manager.is_preparation_phase():
+		game_manager.preparation_time_changed.emit(game_manager.get_preparation_time_remaining())
+	elif game_manager.is_combat_phase():
+		game_manager.combat_time_changed.emit(game_manager.get_combat_time_remaining())
+	elif game_manager.is_interface_phase():
+		game_manager.interface_time_changed.emit(game_manager.get_interface_time_remaining())
+	
 	print("Sistemas de juego inicializados")
 	print("Oro inicial: ", game_manager.get_gold())
+	print("Ronda inicial: ", game_manager.get_current_round())
+	print("Fase inicial: ", "Preparación" if game_manager.is_preparation_phase() else "Combate")
 	print("Ofertas de tienda: ", shop.get_offers_display())
 
 func _on_gold_changed(_new_amount: int):
@@ -346,9 +389,11 @@ func purchase_unit_from_shop(offer_index: int) -> bool:
 func create_shop_ui():
 	"""Crea la UI de la tienda"""
 	# Crear CanvasLayer para la UI (por encima de todo)
-	var canvas_layer = CanvasLayer.new()
-	canvas_layer.name = "UILayer"
-	add_child(canvas_layer)
+	var canvas_layer = get_node_or_null("UILayer")
+	if not canvas_layer:
+		canvas_layer = CanvasLayer.new()
+		canvas_layer.name = "UILayer"
+		add_child(canvas_layer)
 	
 	# Crear nodo ShopUI
 	var shop_ui = ShopUI.new()
@@ -359,3 +404,24 @@ func create_shop_ui():
 	shop_ui.board = self
 	shop_ui.shop = shop
 	shop_ui.game_manager = game_manager
+
+func create_combat_panel():
+	"""Crea el panel de información de combate"""
+	# Obtener o crear CanvasLayer para la UI
+	var canvas_layer = get_node_or_null("UILayer")
+	if not canvas_layer:
+		canvas_layer = CanvasLayer.new()
+		canvas_layer.name = "UILayer"
+		add_child(canvas_layer)
+	
+	# Crear nodo CombatPanel
+	var combat_panel = CombatPanel.new()
+	combat_panel.name = "CombatPanel"
+	canvas_layer.add_child(combat_panel)
+	
+	# Configurar CombatPanel con referencias
+	combat_panel.game_manager = game_manager
+	# Forzar creación de UI si game_manager está disponible
+	if game_manager:
+		combat_panel.connect_signals()
+		combat_panel.create_ui()

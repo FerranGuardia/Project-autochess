@@ -28,13 +28,15 @@ var game_manager: GameManager
 var bench: Bench
 
 func _ready():
-	# Generar ofertas iniciales
-	refresh_shop()
+	# No generar ofertas aquí - se hará después de initialize()
+	pass
 
 func initialize(manager: GameManager, bench_ref: Bench):
 	"""Inicializa la tienda con referencias necesarias"""
 	game_manager = manager
 	bench = bench_ref
+	# Generar ofertas iniciales después de tener las referencias
+	refresh_shop()
 
 func refresh_shop():
 	"""Genera nuevas ofertas aleatorias para la tienda"""
