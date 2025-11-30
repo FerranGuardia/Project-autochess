@@ -229,4 +229,12 @@ El proyecto está en desarrollo activo con sistemas core completados y nuevas fe
 
 ---
 
+## 🙏 Créditos y Atribuciones
+
+Los sprites de animación utilizados en este proyecto provienen del **Liberated Pixel Cup (LPC)**.
+
+**Ver [CREDITS.md](CREDITS.md) para el mensaje de agradecimiento y [docs/CREDITS.csv](docs/CREDITS.csv) para la lista completa de créditos.**
+
+---
+
 **¡Disfruta desarrollando tu autochess! 🎮**

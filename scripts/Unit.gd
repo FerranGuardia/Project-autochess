@@ -32,9 +32,19 @@ var max_energy: int = 100
 var current_energy: int = 0
 
 # Referencias
-var sprite: Sprite2D = null
+var sprite: AnimatedSprite2D = null
 var area: Area2D = null
 var collision_shape: CollisionShape2D = null
+
+# Sistema de animaciones
+enum AnimationState {
+	IDLE,
+	WALK,
+	ATTACK,
+	DEATH
+}
+var current_animation_state: AnimationState = AnimationState.IDLE
+var sprite_frames: SpriteFrames = null
 var health_bar: Node2D = null  # Contenedor de la barra de vida
 var health_bar_background: ColorRect = null
 var health_bar_fill: ColorRect = null
@@ -90,40 +100,89 @@ func initialize_enemy(type: EnemyData.EnemyType):
 	create_energy_bar()
 
 func create_sprite():
-	"""Crea el sprite visual de la unidad"""
+	"""Crea el sprite visual de la unidad con sistema de animaciones"""
 	if sprite:
 		sprite.queue_free()
 	if area:
 		area.queue_free()
 	
-	sprite = Sprite2D.new()
+	# Crear AnimatedSprite2D
+	sprite = AnimatedSprite2D.new()
 	sprite.name = "Sprite"
 	
-	# Cargar la textura del sprite
-	var sprite_path = UnitData.get_unit_sprite_path(unit_type)
-	var texture = load(sprite_path)
+	# Crear SpriteFrames para las animaciones
+	sprite_frames = SpriteFrames.new()
+	sprite_frames.add_animation("idle")
+	sprite_frames.add_animation("walk")
 	
-	if texture:
-		sprite.texture = texture
+	# Configurar animación idle (sprite estático)
+	var idle_sprite_path = UnitData.get_unit_idle_sprite_path(unit_type)
+	var idle_texture = load(idle_sprite_path)
+	
+	if idle_texture:
+		# Agregar frame idle
+		sprite_frames.set_animation_speed("idle", 1.0)
+		sprite_frames.add_frame("idle", idle_texture)
+		
+		# Intentar cargar spritesheet de caminar
+		var walk_spritesheet_path = UnitData.get_unit_walk_spritesheet_path(unit_type)
+		if walk_spritesheet_path != "":
+			setup_walk_animation(walk_spritesheet_path)
+		else:
+			# Si no hay spritesheet de caminar, usar idle como fallback
+			sprite_frames.add_frame("walk", idle_texture)
+		
+		sprite.sprite_frames = sprite_frames
+		sprite.play("idle")
+		current_animation_state = AnimationState.IDLE
+		
 		# Centrar el sprite
 		sprite.centered = true
 		
 		# Escalar el sprite para que quepa en una celda (100x100px)
 		var cell_size = 100.0
-		var sprite_size = max(texture.get_width(), texture.get_height())
+		var sprite_size = max(idle_texture.get_width(), idle_texture.get_height())
 		var scale_factor = cell_size / sprite_size
 		# Aumentar el tamaño (125% del tamaño de celda)
 		scale_factor *= 1.25
 		sprite.scale = Vector2(scale_factor, scale_factor)
 		
 		# Crear Area2D para hacer clickeable toda el área del sprite
-		create_clickable_area(texture, scale_factor)
+		create_clickable_area(idle_texture, scale_factor)
 	else:
 		# Si no se encuentra el sprite, crear un placeholder
-		print("Warning: No se encontró el sprite en: ", sprite_path)
+		print("Warning: No se encontró el sprite en: ", idle_sprite_path)
 		create_placeholder()
 	
 	add_child(sprite)
+
+func setup_walk_animation(spritesheet_path: String):
+	"""Configura la animación de caminar desde un spritesheet"""
+	var spritesheet_texture = load(spritesheet_path)
+	if not spritesheet_texture:
+		print("Warning: No se encontró spritesheet de caminar en: ", spritesheet_path)
+		return
+	
+	# Por ahora, usamos el spritesheet completo como un frame
+	# En el futuro, cuando tengas el spritesheet con frames, puedes dividirlo aquí
+	# Por ejemplo, si el spritesheet tiene 4 frames de 128x128 cada uno:
+	# - Dividir la textura en frames
+	# - Agregar cada frame a la animación "walk"
+	
+	# Por ahora, agregamos el spritesheet completo como un frame
+	sprite_frames.set_animation_speed("walk", 8.0)  # 8 FPS para animación de caminar
+	sprite_frames.add_frame("walk", spritesheet_texture)
+	
+	# TODO: Cuando tengas el spritesheet dividido en frames, implementar la división aquí
+	# Ejemplo de código futuro:
+	# var frame_width = 128
+	# var frame_height = 128
+	# var frames_per_row = spritesheet_texture.get_width() / frame_width
+	# for i in range(frames_per_row):
+	#     var frame = AtlasTexture.new()
+	#     frame.atlas = spritesheet_texture
+	#     frame.region = Rect2(i * frame_width, 0, frame_width, frame_height)
+	#     sprite_frames.add_frame("walk", frame)
 
 func create_clickable_area(texture: Texture2D, scale_factor: float):
 	"""Crea un Area2D para hacer clickeable toda el área del sprite"""
@@ -149,6 +208,37 @@ func create_clickable_area(texture: Texture2D, scale_factor: float):
 	area.mouse_exited.connect(_on_mouse_exited)
 	
 	add_child(area)
+
+# ========== Sistema de Animaciones ==========
+
+func play_animation(animation_name: String):
+	"""Reproduce una animación específica"""
+	if not sprite or not sprite_frames:
+		return
+	
+	if sprite_frames.has_animation(animation_name):
+		sprite.play(animation_name)
+		
+		# Actualizar estado de animación
+		match animation_name:
+			"idle":
+				current_animation_state = AnimationState.IDLE
+			"walk":
+				current_animation_state = AnimationState.WALK
+			"attack":
+				current_animation_state = AnimationState.ATTACK
+			"death":
+				current_animation_state = AnimationState.DEATH
+
+func set_walking(is_walking: bool):
+	"""Cambia entre animación idle y walk según si la unidad está caminando"""
+	if not sprite or not sprite_frames:
+		return
+	
+	if is_walking and current_animation_state != AnimationState.WALK:
+		play_animation("walk")
+	elif not is_walking and current_animation_state != AnimationState.IDLE:
+		play_animation("idle")
 
 func create_enemy_sprite(type: EnemyData.EnemyType):
 	"""Crea el sprite visual de un enemigo"""
@@ -271,12 +361,22 @@ func is_alive() -> bool:
 
 func get_sprite_top_position() -> float:
 	"""Calcula la posición Y de la parte superior del sprite (considerando el área como cuadrado)"""
-	if not sprite or not sprite.texture:
+	if not sprite or not sprite_frames:
 		return -50.0  # Valor por defecto si no hay sprite
 	
+	# Obtener la textura actual del frame de animación
+	var current_texture: Texture2D = null
+	if sprite_frames.has_animation(sprite.animation):
+		var frames = sprite_frames.get_animation_frames(sprite.animation)
+		if frames.size() > 0:
+			current_texture = frames[0] as Texture2D
+	
+	if not current_texture:
+		return -50.0
+	
 	# Obtener el tamaño original de la textura
-	var texture_width = sprite.texture.get_width()
-	var texture_height = sprite.texture.get_height()
+	var texture_width = current_texture.get_width()
+	var texture_height = current_texture.get_height()
 	
 	# Considerar el área como un cuadrado (usar el máximo)
 	var sprite_size = max(texture_width, texture_height)
@@ -289,7 +389,7 @@ func get_sprite_top_position() -> float:
 
 func update_bar_positions():
 	"""Actualiza las posiciones de las barras basándose en el tamaño actual del sprite"""
-	if not sprite or not sprite.texture:
+	if not sprite or not sprite_frames:
 		return
 	
 	# Calcular posición basada en el tamaño del sprite

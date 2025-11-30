@@ -19,6 +19,8 @@ static var UNIT_INFO = {
 		"name": "Mago",
 		"color": Color(0.2, 0.4, 0.9),  # Azul
 		"sprite_path": "res://assets/sprites/units/mago_idle.png",
+		"idle_sprite_path": "res://assets/sprites/units/mago_idle.png",
+		"walk_spritesheet_path": "res://assets/sprites/units/mago/mago_walk.png",  # Spritesheet de caminar
 		"health": 60,  # Salud base
 		"attack": 20,
 		"defense": 5,
@@ -105,6 +107,18 @@ static func get_unit_attack_range(type: UnitType) -> int:
 static func get_unit_attack_speed(type: UnitType) -> float:
 	"""Obtiene la velocidad de ataque de una unidad"""
 	return UNIT_INFO[type]["attack_speed"]
+
+static func get_unit_idle_sprite_path(type: UnitType) -> String:
+	"""Obtiene la ruta del sprite idle de una unidad"""
+	if UNIT_INFO[type].has("idle_sprite_path"):
+		return UNIT_INFO[type]["idle_sprite_path"]
+	return UNIT_INFO[type]["sprite_path"]  # Fallback al sprite_path original
+
+static func get_unit_walk_spritesheet_path(type: UnitType) -> String:
+	"""Obtiene la ruta del spritesheet de caminar de una unidad"""
+	if UNIT_INFO[type].has("walk_spritesheet_path"):
+		return UNIT_INFO[type]["walk_spritesheet_path"]
+	return ""  # Retorna string vacío si no existe
 
 
 

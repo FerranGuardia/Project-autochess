@@ -150,11 +150,15 @@ func update_combat():
 func update_unit_combat(unit: Unit, targets: Array[Unit]):
 	"""Actualiza el combate de una unidad específica"""
 	if targets.is_empty():
+		# Si no hay objetivos, detener animación de caminar
+		unit.set_walking(false)
 		return
 	
 	# Encontrar el objetivo más cercano
 	var target = find_nearest_target(unit, targets)
 	if not target:
+		# Si no hay objetivo válido, detener animación de caminar
+		unit.set_walking(false)
 		return
 	
 	# Obtener rango de ataque
@@ -230,6 +234,9 @@ func move_towards_target(unit: Unit, target: Unit):
 	# Calcular dirección
 	var direction = (target_pos - unit_pos).normalized()
 	
+	# Activar animación de caminar
+	unit.set_walking(true)
+	
 	# Mover la unidad
 	var move_distance = MOVE_SPEED * COMBAT_UPDATE_INTERVAL
 	unit.global_position += direction * move_distance
@@ -298,6 +305,9 @@ func attack_target(unit: Unit, target: Unit):
 		if cooldown > 0:
 			attack_cooldowns[unit_id] = cooldown - COMBAT_UPDATE_INTERVAL
 			return
+	
+	# Detener animación de caminar y activar idle (está atacando, no moviéndose)
+	unit.set_walking(false)
 	
 	# Calcular daño
 	var damage = get_unit_attack(unit)

@@ -46,3 +46,6 @@ diagnostico_git.ps1
 # Files with unusual names
 ck --full
 
+# Credits placeholder (debe ser reemplazado por el archivo real)
+CREDITS_PLACEHOLDER.txt
+
