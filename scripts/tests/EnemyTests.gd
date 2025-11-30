@@ -171,7 +171,7 @@ func test_enemy_data_stats():
 	
 	# Goblin Shield (Tank)
 	var shield_health = EnemyData.get_enemy_health(EnemyData.EnemyType.GOBLIN_SHIELD)
-	var shield_attack = EnemyData.get_enemy_attack(EnemyData.EnemyType.GOBLIN_SHIELD)
+	var _shield_attack = EnemyData.get_enemy_attack(EnemyData.EnemyType.GOBLIN_SHIELD)
 	var shield_defense = EnemyData.get_enemy_defense(EnemyData.EnemyType.GOBLIN_SHIELD)
 	
 	if shield_health > 0 and shield_defense > 0:

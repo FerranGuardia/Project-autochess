@@ -22,7 +22,7 @@ var camera: Camera2D = null
 
 # Sistema de tiles del borde decorativo
 var border_tiles_container: Node2D = null
-const BoardTileHelper = preload("res://scripts/BoardTileHelper.gd")
+const BoardTileHelperScript = preload("res://scripts/BoardTileHelper.gd")
 
 # Sistema de drag global
 var global_dragged_unit: Unit = null
@@ -251,7 +251,7 @@ func load_border_tiles():
 	# Cargar todos los tiles del borde
 	# Fila superior (fila 0)
 	for col in range(9):
-		var tile_index = BoardTileHelper.get_border_tile_index(col, 0)
+		var tile_index = BoardTileHelperScript.get_border_tile_index(col, 0)
 		var tile_sprite = load_border_tile(tile_index, col, 0, board_start_x, board_start_y)
 		if tile_sprite:
 			border_tiles_container.add_child(tile_sprite)
@@ -259,7 +259,7 @@ func load_border_tiles():
 	
 	# Fila inferior (fila 11)
 	for col in range(9):
-		var tile_index = BoardTileHelper.get_border_tile_index(col, 11)
+		var tile_index = BoardTileHelperScript.get_border_tile_index(col, 11)
 		var tile_sprite = load_border_tile(tile_index, col, 11, board_start_x, board_start_y)
 		if tile_sprite:
 			border_tiles_container.add_child(tile_sprite)
@@ -267,7 +267,7 @@ func load_border_tiles():
 	
 	# Columna izquierda (columna 0, filas 1-10)
 	for row in range(1, 11):
-		var tile_index = BoardTileHelper.get_border_tile_index(0, row)
+		var tile_index = BoardTileHelperScript.get_border_tile_index(0, row)
 		var tile_sprite = load_border_tile(tile_index, 0, row, board_start_x, board_start_y)
 		if tile_sprite:
 			border_tiles_container.add_child(tile_sprite)
@@ -275,7 +275,7 @@ func load_border_tiles():
 	
 	# Columna derecha (columna 8, filas 1-10)
 	for row in range(1, 11):
-		var tile_index = BoardTileHelper.get_border_tile_index(8, row)
+		var tile_index = BoardTileHelperScript.get_border_tile_index(8, row)
 		var tile_sprite = load_border_tile(tile_index, 8, row, board_start_x, board_start_y)
 		if tile_sprite:
 			border_tiles_container.add_child(tile_sprite)
@@ -288,7 +288,7 @@ func load_border_tiles():
 
 func load_border_tile(tile_index: int, board_col: int, board_row: int, board_start_x: float, board_start_y: float) -> Sprite2D:
 	"""Carga un tile específico del borde decorativo"""
-	var tile_path = BoardTileHelper.get_tile_path(tile_index)
+	var tile_path = BoardTileHelperScript.get_tile_path(tile_index)
 	if ResourceLoader.exists(tile_path):
 		var texture = load(tile_path) as Texture2D
 		if texture:
@@ -347,8 +347,8 @@ func run_enemy_tests():
 
 func run_board_tiles_tests():
 	"""Ejecuta todos los tests de tiles del tablero"""
-	const BoardTilesTests = preload("res://scripts/tests/BoardTilesTests.gd")
-	var tiles_tests = BoardTilesTests.new()
+	const BoardTilesTestsScript = preload("res://scripts/tests/BoardTilesTests.gd")
+	var tiles_tests = BoardTilesTestsScript.new()
 	add_child(tiles_tests)
 
 func setup_game_systems():

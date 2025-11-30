@@ -312,7 +312,7 @@ func validate_container_children(container: Container, parent_panel: Panel):
 	
 	var panel_size = parent_panel.custom_minimum_size
 	var container_pos = container.position
-	var container_size = container.custom_minimum_size
+	var _container_size = container.custom_minimum_size
 	
 	# Validar cada hijo del contenedor
 	for child in container.get_children():

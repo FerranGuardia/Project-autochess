@@ -3,7 +3,7 @@ class_name BoardTilesTests
 
 ## Tests unitarios para verificar la carga y posicionamiento de tiles del tablero
 
-const BoardTileHelper = preload("res://scripts/BoardTileHelper.gd")
+const BoardTileHelperScript = preload("res://scripts/BoardTileHelper.gd")
 
 var tests_passed = 0
 var tests_failed = 0
@@ -60,52 +60,52 @@ func test_tile_index_calculations():
 	print("\n📐 Test: Cálculos de índices de tiles")
 	
 	# Test borde superior (fila 0)
-	assert_test(BoardTileHelper.get_border_tile_index(0, 0) == 1, 
+	assert_test(BoardTileHelperScript.get_border_tile_index(0, 0) == 1, 
 		"Borde superior izquierda (0,0) = tile 1",
-		"Esperado: 1, Obtenido: %d" % BoardTileHelper.get_border_tile_index(0, 0))
+		"Esperado: 1, Obtenido: %d" % BoardTileHelperScript.get_border_tile_index(0, 0))
 	
-	assert_test(BoardTileHelper.get_border_tile_index(4, 0) == 5, 
+	assert_test(BoardTileHelperScript.get_border_tile_index(4, 0) == 5, 
 		"Borde superior centro (4,0) = tile 5",
-		"Esperado: 5, Obtenido: %d" % BoardTileHelper.get_border_tile_index(4, 0))
+		"Esperado: 5, Obtenido: %d" % BoardTileHelperScript.get_border_tile_index(4, 0))
 	
-	assert_test(BoardTileHelper.get_border_tile_index(8, 0) == 9, 
+	assert_test(BoardTileHelperScript.get_border_tile_index(8, 0) == 9, 
 		"Borde superior derecha (8,0) = tile 9",
-		"Esperado: 9, Obtenido: %d" % BoardTileHelper.get_border_tile_index(8, 0))
+		"Esperado: 9, Obtenido: %d" % BoardTileHelperScript.get_border_tile_index(8, 0))
 	
 	# Test borde inferior (fila 11)
-	assert_test(BoardTileHelper.get_border_tile_index(0, 11) == 100, 
+	assert_test(BoardTileHelperScript.get_border_tile_index(0, 11) == 100, 
 		"Borde inferior izquierda (0,11) = tile 100",
-		"Esperado: 100, Obtenido: %d" % BoardTileHelper.get_border_tile_index(0, 11))
+		"Esperado: 100, Obtenido: %d" % BoardTileHelperScript.get_border_tile_index(0, 11))
 	
-	assert_test(BoardTileHelper.get_border_tile_index(8, 11) == 108, 
+	assert_test(BoardTileHelperScript.get_border_tile_index(8, 11) == 108, 
 		"Borde inferior derecha (8,11) = tile 108",
-		"Esperado: 108, Obtenido: %d" % BoardTileHelper.get_border_tile_index(8, 11))
+		"Esperado: 108, Obtenido: %d" % BoardTileHelperScript.get_border_tile_index(8, 11))
 	
 	# Test grid enemigo
-	assert_test(BoardTileHelper.get_enemy_tile_index(0, 0) == 11, 
+	assert_test(BoardTileHelperScript.get_enemy_tile_index(0, 0) == 11, 
 		"Grid enemigo (0,0) = tile 11",
-		"Esperado: 11, Obtenido: %d" % BoardTileHelper.get_enemy_tile_index(0, 0))
+		"Esperado: 11, Obtenido: %d" % BoardTileHelperScript.get_enemy_tile_index(0, 0))
 	
-	assert_test(BoardTileHelper.get_enemy_tile_index(3, 2) == 32, 
+	assert_test(BoardTileHelperScript.get_enemy_tile_index(3, 2) == 32, 
 		"Grid enemigo (3,2) = tile 32",
-		"Esperado: 32, Obtenido: %d" % BoardTileHelper.get_enemy_tile_index(3, 2))
+		"Esperado: 32, Obtenido: %d" % BoardTileHelperScript.get_enemy_tile_index(3, 2))
 	
-	assert_test(BoardTileHelper.get_enemy_tile_index(6, 4) == 53, 
+	assert_test(BoardTileHelperScript.get_enemy_tile_index(6, 4) == 53, 
 		"Grid enemigo (6,4) = tile 53",
-		"Esperado: 53, Obtenido: %d" % BoardTileHelper.get_enemy_tile_index(6, 4))
+		"Esperado: 53, Obtenido: %d" % BoardTileHelperScript.get_enemy_tile_index(6, 4))
 	
 	# Test grid aliado
-	assert_test(BoardTileHelper.get_ally_tile_index(0, 0) == 56, 
+	assert_test(BoardTileHelperScript.get_ally_tile_index(0, 0) == 56, 
 		"Grid aliado (0,0) = tile 56",
-		"Esperado: 56, Obtenido: %d" % BoardTileHelper.get_ally_tile_index(0, 0))
+		"Esperado: 56, Obtenido: %d" % BoardTileHelperScript.get_ally_tile_index(0, 0))
 	
-	assert_test(BoardTileHelper.get_ally_tile_index(3, 2) == 77, 
+	assert_test(BoardTileHelperScript.get_ally_tile_index(3, 2) == 77, 
 		"Grid aliado (3,2) = tile 77",
-		"Esperado: 77, Obtenido: %d" % BoardTileHelper.get_ally_tile_index(3, 2))
+		"Esperado: 77, Obtenido: %d" % BoardTileHelperScript.get_ally_tile_index(3, 2))
 	
-	assert_test(BoardTileHelper.get_ally_tile_index(6, 4) == 98, 
+	assert_test(BoardTileHelperScript.get_ally_tile_index(6, 4) == 98, 
 		"Grid aliado (6,4) = tile 98",
-		"Esperado: 98, Obtenido: %d" % BoardTileHelper.get_ally_tile_index(6, 4))
+		"Esperado: 98, Obtenido: %d" % BoardTileHelperScript.get_ally_tile_index(6, 4))
 
 func test_tile_paths_exist():
 	"""Test: Verificar que los archivos de tiles existen"""
@@ -117,7 +117,7 @@ func test_tile_paths_exist():
 	# Verificar tiles de borde (muestra)
 	var border_samples = [1, 5, 9, 10, 18, 19, 27, 28, 36, 45, 54, 63, 72, 81, 90, 99, 100, 104, 108]
 	for tile_index in border_samples:
-		var path = BoardTileHelper.get_tile_path(tile_index)
+		var path = BoardTileHelperScript.get_tile_path(tile_index)
 		if ResourceLoader.exists(path):
 			existing_tiles += 1
 		else:
@@ -126,7 +126,7 @@ func test_tile_paths_exist():
 	# Verificar tiles del grid enemigo (muestra)
 	var enemy_samples = [11, 17, 20, 26, 29, 35, 38, 44, 47, 53]
 	for tile_index in enemy_samples:
-		var path = BoardTileHelper.get_tile_path(tile_index)
+		var path = BoardTileHelperScript.get_tile_path(tile_index)
 		if ResourceLoader.exists(path):
 			existing_tiles += 1
 		else:
@@ -135,7 +135,7 @@ func test_tile_paths_exist():
 	# Verificar tiles del grid aliado (muestra)
 	var ally_samples = [56, 62, 65, 71, 74, 80, 83, 89, 92, 98]
 	for tile_index in ally_samples:
-		var path = BoardTileHelper.get_tile_path(tile_index)
+		var path = BoardTileHelperScript.get_tile_path(tile_index)
 		if ResourceLoader.exists(path):
 			existing_tiles += 1
 		else:
@@ -253,7 +253,7 @@ func test_tile_loading():
 	# Test cargar algunos tiles del grid
 	var test_tiles = [11, 30, 53, 56, 75, 98]  # Muestra de tiles del grid
 	for tile_index in test_tiles:
-		var path = BoardTileHelper.get_tile_path(tile_index)
+		var path = BoardTileHelperScript.get_tile_path(tile_index)
 		if ResourceLoader.exists(path):
 			var texture = load(path) as Texture2D
 			assert_test(texture != null,

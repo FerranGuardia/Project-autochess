@@ -251,37 +251,37 @@ func update_unit_grid_position(unit: Unit):
 	# No necesitamos la variable grid, usamos directamente grid_ally o grid_enemy
 	
 	# Convertir posición mundial a posición del grid
-	var grid_pos: Vector2i = Vector2i(-1, -1)
+	var _grid_pos: Vector2i = Vector2i(-1, -1)
 	if unit.is_enemy:
 		if grid_enemy:
-			grid_pos = grid_enemy.get_grid_position(unit.global_position)
+			_grid_pos = grid_enemy.get_grid_position(unit.global_position)
 		else:
 			return
 	else:
 		if grid_ally:
-			grid_pos = grid_ally.get_grid_position(unit.global_position)
+			_grid_pos = grid_ally.get_grid_position(unit.global_position)
 		else:
 			return
 	
 	# Solo actualizar si la posición cambió significativamente (más de media celda)
-	if grid_pos.x >= 0 and grid_pos.y >= 0:
-		var distance = Vector2(current_pos).distance_to(Vector2(grid_pos))
+	if _grid_pos.x >= 0 and _grid_pos.y >= 0:
+		var distance = Vector2(current_pos).distance_to(Vector2(_grid_pos))
 		if distance > 0.5:  # Solo actualizar si se movió más de media celda
 			# Verificar si la celda está libre o es la misma unidad
 			var existing_unit: Unit = null
 			if unit.is_enemy:
-				existing_unit = grid_enemy.get_enemy_at(grid_pos.x, grid_pos.y)
+				existing_unit = grid_enemy.get_enemy_at(_grid_pos.x, _grid_pos.y)
 			else:
-				existing_unit = grid_ally.get_unit_at(grid_pos.x, grid_pos.y)
+				existing_unit = grid_ally.get_unit_at(_grid_pos.x, _grid_pos.y)
 			
 			if not existing_unit or existing_unit == unit:
 				# Mover la unidad en el grid
 				if unit.is_enemy:
 					grid_enemy.remove_enemy(unit, false)
-					grid_enemy.place_enemy(unit, grid_pos.x, grid_pos.y)
+					grid_enemy.place_enemy(unit, _grid_pos.x, _grid_pos.y)
 				else:
 					grid_ally.remove_unit(unit)
-					grid_ally.place_unit(unit, grid_pos.x, grid_pos.y)
+					grid_ally.place_unit(unit, _grid_pos.x, _grid_pos.y)
 
 # Tracking de cooldowns de ataque
 var attack_cooldowns: Dictionary = {}  # Key: Unit, Value: float (tiempo restante)
@@ -365,7 +365,7 @@ func check_combat_end() -> bool:
 	
 	return false
 
-func end_combat(victory: bool):
+func end_combat(won: bool):
 	"""Termina el combate"""
 	stop_combat()
 	
@@ -374,5 +374,5 @@ func end_combat(victory: bool):
 	
 	# Notificar al GameManager
 	if game_manager:
-		game_manager.end_combat(victory)
+		game_manager.end_combat(won)
 

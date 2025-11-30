@@ -4,7 +4,7 @@ class_name GridAlly
 ## Grid del tablero aliado (7×5 celdas)
 ## Visualización y gestión del grid inferior
 
-const BoardTileHelper = preload("res://scripts/BoardTileHelper.gd")
+const BoardTileHelperScript = preload("res://scripts/BoardTileHelper.gd")
 
 const CELL_SIZE = 100
 const COLUMNS = 7
@@ -130,10 +130,10 @@ func load_tile_for_cell(col: int, row: int) -> Sprite2D:
 	"""Intenta cargar un tile específico para una celda del tablero completo"""
 	# Calcular índice del tile del tablero completo (1-108)
 	# Grid aliado está en las filas 6-10 del tablero completo
-	var tile_index = BoardTileHelper.get_ally_tile_index(col, row)
+	var tile_index = BoardTileHelperScript.get_ally_tile_index(col, row)
 	
 	# Intentar cargar tile específico del tablero completo
-	var tile_path = BoardTileHelper.get_tile_path(tile_index)
+	var tile_path = BoardTileHelperScript.get_tile_path(tile_index)
 	if ResourceLoader.exists(tile_path):
 		var texture = load(tile_path) as Texture2D
 		if texture:
