@@ -11,16 +11,9 @@ var game_manager: GameManager = null
 
 # Nodos de UI - TIENDA
 var gold_label: Label = null
-var round_label: Label = null
-var lives_label: Label = null
-var phase_label: Label = null
 var shop_panel: Panel = null
 var offers_container: VBoxContainer = null
 var refresh_button: Button = null
-
-# Nodos de UI - CONTROLES (separado de la tienda)
-var control_panel: Panel = null
-var start_combat_button: Button = null
 
 # Constantes de UI - TIENDA
 const SHOP_PANEL_WIDTH = 600
@@ -411,7 +404,3 @@ func _on_gold_changed(_new_amount: int):
 func _on_unit_purchased(unit_type: UnitData.UnitType, cost: int):
 	"""Se llama cuando se compra una unidad"""
 	print("Unidad comprada: ", UnitData.get_unit_name(unit_type), " por ", cost, " oro")
-
-func _on_panel_resized():
-	"""Se llama cuando el panel cambia de tamaño - revalidar todo"""
-	ensure_all_elements_inside_panel()

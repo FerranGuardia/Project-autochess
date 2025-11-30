@@ -17,7 +17,6 @@ var game_manager: GameManager = null
 var combat_panel: Panel = null
 var round_label: Label = null
 var lives_label: Label = null
-var phase_label: Label = null
 var timer_label: Label = null
 var start_combat_button: Button = null
 
@@ -131,13 +130,7 @@ func create_ui():
 	lives_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	center_container.add_child(lives_label)
 	
-	# Eliminar phase_label - no se mostrará "Fase: Preparación" cuando la ronda ya ha empezado
-	# phase_label ya no se usa, se mantiene solo para compatibilidad pero se oculta
-	phase_label = Label.new()
-	phase_label.name = "PhaseLabel"
-	phase_label.text = ""
-	phase_label.visible = false  # Ocultar el label de fase
-	center_container.add_child(phase_label)
+	# phase_label eliminado - ya no se usa
 	
 	# ========== DERECHA: Temporizador y Botón ==========
 	var right_container = VBoxContainer.new()
