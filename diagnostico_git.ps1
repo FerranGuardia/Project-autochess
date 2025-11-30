@@ -140,3 +140,7 @@ Write-Host "`n=== FIN DEL DIAGNÓSTICO ===`n" -ForegroundColor Cyan
 
 
 
+
+
+
+

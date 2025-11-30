@@ -84,3 +84,7 @@ Este PR ajusta el tamaño de los sprites de las unidades y mejora el sistema de 
 - Las barras se posicionan dinámicamente, por lo que cualquier cambio futuro en el tamaño de sprites no requerirá ajustes manuales
 
 
+
+
+
+

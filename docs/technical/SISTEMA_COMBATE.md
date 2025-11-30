@@ -151,3 +151,7 @@ const COMBAT_UPDATE_INTERVAL: float = 0.1  # Actualizar cada 0.1s
 
 
 
+
+
+
+

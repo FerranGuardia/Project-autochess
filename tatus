@@ -1,0 +1,30 @@
+[33mc5d39a5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/panel-de-combate[m[33m)[m Merge origin/master into feature/panel-de-combate - Resolver conflictos
+[33m6967ae1[m WIP: Trabajo en progreso - Panel de combate
+[33m4abb83b[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m Merge pull request #3 from FerranGuardia/feature/modificar-tamano-sprites-ajustar-barras
+[33m10c6830[m Merge master into feature branch - resolver conflictos
+[33md358db7[m Fix: Resolver warnings de GDScript (shadowing, variables no usadas, conflictos de nombres, conversiones de tipo)
+[33ma73e974[m Fix: Inicializar variables en CombatSystem para eliminar warnings
+[33m4d8d2e6[m Ajustar tamaño de sprites a 1.25x y posicionamiento dinámico de barras
+[33mada3f66[m fix: corregir errores de parse y UID duplicado
+[33m89ae047[m Merge pull request #2 from FerranGuardia/feature/barra-energia
+[33m11f0ce5[m feat: implementar sistema completo de barra de energía
+[33m203330d[m Merge pull request #1 from FerranGuardia/feature/arena-visual
+[33mf3a7e0d[m fix: corregir advertencias del debugger (variables no usadas, tipos, parámetros)
+[33m1b41d00[m docs: agregar resumen de arena-visual y eliminar documentación no relevante del PR
+[33m2038b22[m fix: corregir GenerateArena.tscn corrupto y actualizar script de test de tiles
+[33m4ce854c[m Limpiar tiles antiguos del tablero y actualizar .gitignore
+[33m50bb5ba[m docs: optimizar y unificar documentación del proyecto
+[33m4c671d5[m feat: sistema de tiles simple para tablero completo
+[33m1bfb156[m chore: eliminar archivos .import sobrantes de sprites eliminados
+[33ma38c91b[m refactor: eliminar sistema de tiles decorativos y cálculos relacionados
+[33m884a726[m docs: agregar tablas de nombres de tiles para referencia rápida
+[33mbd35de4[m docs: calcular distancia vertical entre grids enemigo y aliado
+[33mffba284[m docs: verificar y documentar dimensiones actualizadas de la arena
+[33mf3b0f38[m feat: agregar tiles decorativos arriba y abajo de los lados izquierdo y derecho
+[33m15d2b3d[m docs: agregar dimensiones exactas de la arena para diseño en GIMP
+[33m4c1de13[m feat: agregar sistema de tiles decorativos alrededor de los grids
+[33mc5a4c0c[m refactor: cambiar sistema de arena de sprite grande a tiles individuales
+[33m8382234[m fix: corregir posicionamiento de sprites de arena para alinearlos con las celdas
+[33m3f56674[m docs: agregar resumen práctico de gitflow y PR
+[33m44f6987[m docs: agregar guía de Pull Requests para aprendizaje
+[33m98355f2[m feat: agregar sistema de tiles visuales para tableros aliado y enemigo

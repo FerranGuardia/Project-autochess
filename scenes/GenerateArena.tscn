@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://cx9m2n4p6q8r0s"]
+[gd_scene load_steps=2 format=3 uid="uid://dd813tlerlnk7"]
 
 [ext_resource type="Script" path="res://generate_arena.gd" id="1_1"]
 
